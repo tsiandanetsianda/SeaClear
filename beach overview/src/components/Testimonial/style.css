@@ -1,0 +1,158 @@
+.testimonial {
+  align-items: center;
+  background-color: var(--semantic-background-color-primary);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.testimonial .content-7 {
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  position: relative;
+}
+
+.testimonial .stars {
+  flex: 0 0 auto;
+  position: relative;
+}
+
+.testimonial .quote {
+  align-self: stretch;
+  color: var(--semantic-text-primary);
+  position: relative;
+  text-align: center;
+}
+
+.testimonial .avatar {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 0 auto;
+  position: relative;
+}
+
+.testimonial .avatar-image {
+  height: 56px;
+  object-fit: cover;
+  position: relative;
+  width: 56px;
+}
+
+.testimonial .avatar-content {
+  display: inline-flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  position: relative;
+}
+
+.testimonial .text-5 {
+  color: var(--semantic-text-primary);
+  font-family: var(--text-regular-semi-bold-font-family);
+  font-size: var(--text-regular-semi-bold-font-size);
+  font-style: var(--text-regular-semi-bold-font-style);
+  font-weight: var(--text-regular-semi-bold-font-weight);
+  letter-spacing: var(--text-regular-semi-bold-letter-spacing);
+  line-height: var(--text-regular-semi-bold-line-height);
+  margin-top: -1px;
+  position: relative;
+}
+
+.testimonial .text-6 {
+  color: var(--semantic-text-primary);
+  font-family: var(--text-regular-normal-font-family);
+  font-size: var(--text-regular-normal-font-size);
+  font-style: var(--text-regular-normal-font-style);
+  font-weight: var(--text-regular-normal-font-weight);
+  letter-spacing: var(--text-regular-normal-letter-spacing);
+  line-height: var(--text-regular-normal-line-height);
+  position: relative;
+  white-space: nowrap;
+  width: fit-content;
+}
+
+.testimonial .divider {
+  height: 61px;
+  object-fit: cover;
+  position: relative;
+  width: 1px;
+}
+
+.testimonial .logo-color-dark {
+  height: 56px !important;
+  position: relative !important;
+  width: 140px !important;
+}
+
+.testimonial.breakpoint-23-mobile {
+  gap: 48px;
+  padding: 64px 20px;
+  width: 375px;
+}
+
+.testimonial.breakpoint-23-desktop {
+  gap: 80px;
+  padding: 112px 64px;
+  width: 1440px;
+}
+
+.testimonial.breakpoint-23-mobile .content-7 {
+  align-self: stretch;
+  gap: 24px;
+  width: 100%;
+}
+
+.testimonial.breakpoint-23-desktop .content-7 {
+  gap: 32px;
+  width: 768px;
+}
+
+.testimonial.breakpoint-23-mobile .quote {
+  font-family: var(--heading-mobile-h5-font-family);
+  font-size: var(--heading-mobile-h5-font-size);
+  font-style: var(--heading-mobile-h5-font-style);
+  font-weight: var(--heading-mobile-h5-font-weight);
+  letter-spacing: var(--heading-mobile-h5-letter-spacing);
+  line-height: var(--heading-mobile-h5-line-height);
+}
+
+.testimonial.breakpoint-23-desktop .quote {
+  font-family: var(--heading-desktop-h5-font-family);
+  font-size: var(--heading-desktop-h5-font-size);
+  font-style: var(--heading-desktop-h5-font-style);
+  font-weight: var(--heading-desktop-h5-font-weight);
+  letter-spacing: var(--heading-desktop-h5-letter-spacing);
+  line-height: var(--heading-desktop-h5-line-height);
+}
+
+.testimonial.breakpoint-23-mobile .avatar {
+  flex-direction: column;
+  gap: 16px;
+}
+
+.testimonial.breakpoint-23-desktop .avatar {
+  gap: 20px;
+}
+
+.testimonial.breakpoint-23-mobile .avatar-content {
+  align-items: center;
+}
+
+.testimonial.breakpoint-23-desktop .avatar-content {
+  align-items: flex-start;
+}
+
+.testimonial.breakpoint-23-mobile .text-5 {
+  align-self: stretch;
+  text-align: center;
+}
+
+.testimonial.breakpoint-23-desktop .text-5 {
+  white-space: nowrap;
+  width: fit-content;
+}
+
+.testimonial.breakpoint-23-mobile .text-6 {
+  text-align: center;
+}

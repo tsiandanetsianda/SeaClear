@@ -1,0 +1,16 @@
+.company-logo {
+  left: 0;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+}
+
+.company-logo.dark {
+  height: 75px;
+  width: 183px;
+}
+
+.company-logo.light {
+  height: 28px;
+  width: 63px;
+}

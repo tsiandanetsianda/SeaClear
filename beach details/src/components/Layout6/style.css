@@ -1,0 +1,259 @@
+.layout-6 {
+  align-items: flex-start;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.layout-6 .container-6 {
+  align-self: stretch;
+  display: flex;
+  flex: 0 0 auto;
+  position: relative;
+  width: 100%;
+}
+
+.layout-6 .content-10 {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.layout-6 .content-11 {
+  align-items: flex-start;
+  align-self: stretch;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+}
+
+.layout-6 .heading-4 {
+  align-self: stretch;
+  color: var(--semantic-text-primary-duplicate);
+  margin-top: -1px;
+  position: relative;
+}
+
+.layout-6 .text-6 {
+  align-self: stretch;
+  color: var(--semantic-text-primary-duplicate);
+  position: relative;
+}
+
+.layout-6 .list-4 {
+  align-items: flex-start;
+  align-self: stretch;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 24px;
+  padding: 8px 0px;
+  position: relative;
+  width: 100%;
+}
+
+.layout-6 .list-item-7 {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.layout-6 .subheading-one-2 {
+  align-self: stretch;
+  color: var(--semantic-text-primary-duplicate);
+  margin-top: -1px;
+  position: relative;
+}
+
+.layout-6 .text-7 {
+  align-self: stretch;
+  color: var(--semantic-text-primary-duplicate);
+  font-family: var(--text-regular-normal-font-family);
+  font-size: var(--text-regular-normal-font-size);
+  font-style: var(--text-regular-normal-font-style);
+  font-weight: var(--text-regular-normal-font-weight);
+  letter-spacing: var(--text-regular-normal-letter-spacing);
+  line-height: var(--text-regular-normal-line-height);
+  position: relative;
+}
+
+.layout-6 .list-item-8 {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.layout-6 .subheading-two-2 {
+  align-self: stretch;
+  color: var(--semantic-text-primary-duplicate);
+  margin-top: -1px;
+  position: relative;
+}
+
+.layout-6 .placeholder-image-3 {
+  object-fit: cover;
+  position: relative;
+}
+
+.layout-6.breakpoint-39-mobile {
+  gap: 48px;
+  padding: 48px 20px;
+  width: 375px;
+}
+
+.layout-6.breakpoint-39-desktop {
+  gap: 80px;
+  padding: 112px 64px;
+  width: 1440px;
+}
+
+.layout-6.breakpoint-39-mobile .container-6 {
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.layout-6.breakpoint-39-desktop .container-6 {
+  align-items: center;
+  gap: 80px;
+}
+
+.layout-6.breakpoint-39-mobile .content-10 {
+  align-self: stretch;
+  flex: 0 0 auto;
+  gap: 24px;
+  width: 100%;
+}
+
+.layout-6.breakpoint-39-desktop .content-10 {
+  flex: 1;
+  flex-grow: 1;
+  gap: 32px;
+}
+
+.layout-6.breakpoint-39-mobile .content-11 {
+  gap: 20px;
+}
+
+.layout-6.breakpoint-39-desktop .content-11 {
+  gap: 24px;
+}
+
+.layout-6.breakpoint-39-mobile .heading-4 {
+  font-family: var(--heading-mobile-h3-font-family);
+  font-size: var(--heading-mobile-h3-font-size);
+  font-style: var(--heading-mobile-h3-font-style);
+  font-weight: var(--heading-mobile-h3-font-weight);
+  letter-spacing: var(--heading-mobile-h3-letter-spacing);
+  line-height: var(--heading-mobile-h3-line-height);
+}
+
+.layout-6.breakpoint-39-desktop .heading-4 {
+  font-family: var(--heading-desktop-h3-font-family);
+  font-size: var(--heading-desktop-h3-font-size);
+  font-style: var(--heading-desktop-h3-font-style);
+  font-weight: var(--heading-desktop-h3-font-weight);
+  letter-spacing: var(--heading-desktop-h3-letter-spacing);
+  line-height: var(--heading-desktop-h3-line-height);
+}
+
+.layout-6.breakpoint-39-mobile .text-6 {
+  font-family: var(--text-regular-normal-font-family);
+  font-size: var(--text-regular-normal-font-size);
+  font-style: var(--text-regular-normal-font-style);
+  font-weight: var(--text-regular-normal-font-weight);
+  letter-spacing: var(--text-regular-normal-letter-spacing);
+  line-height: var(--text-regular-normal-line-height);
+}
+
+.layout-6.breakpoint-39-desktop .text-6 {
+  font-family: var(--text-medium-normal-font-family);
+  font-size: var(--text-medium-normal-font-size);
+  font-style: var(--text-medium-normal-font-style);
+  font-weight: var(--text-medium-normal-font-weight);
+  letter-spacing: var(--text-medium-normal-letter-spacing);
+  line-height: var(--text-medium-normal-line-height);
+}
+
+.layout-6.breakpoint-39-mobile .list-4 {
+  flex-direction: column;
+}
+
+.layout-6.breakpoint-39-mobile .list-item-7 {
+  align-self: stretch;
+  flex: 0 0 auto;
+  gap: 12px;
+  width: 100%;
+}
+
+.layout-6.breakpoint-39-desktop .list-item-7 {
+  flex: 1;
+  flex-grow: 1;
+  gap: 16px;
+}
+
+.layout-6.breakpoint-39-mobile .subheading-one-2 {
+  font-family: var(--heading-mobile-h6-font-family);
+  font-size: var(--heading-mobile-h6-font-size);
+  font-style: var(--heading-mobile-h6-font-style);
+  font-weight: var(--heading-mobile-h6-font-weight);
+  letter-spacing: var(--heading-mobile-h6-letter-spacing);
+  line-height: var(--heading-mobile-h6-line-height);
+}
+
+.layout-6.breakpoint-39-desktop .subheading-one-2 {
+  font-family: var(--heading-desktop-h6-font-family);
+  font-size: var(--heading-desktop-h6-font-size);
+  font-style: var(--heading-desktop-h6-font-style);
+  font-weight: var(--heading-desktop-h6-font-weight);
+  letter-spacing: var(--heading-desktop-h6-letter-spacing);
+  line-height: var(--heading-desktop-h6-line-height);
+}
+
+.layout-6.breakpoint-39-mobile .list-item-8 {
+  align-self: stretch;
+  flex: 0 0 auto;
+  gap: 12px;
+  width: 100%;
+}
+
+.layout-6.breakpoint-39-desktop .list-item-8 {
+  flex: 1;
+  flex-grow: 1;
+  gap: 16px;
+}
+
+.layout-6.breakpoint-39-mobile .subheading-two-2 {
+  font-family: var(--heading-mobile-h6-font-family);
+  font-size: var(--heading-mobile-h6-font-size);
+  font-style: var(--heading-mobile-h6-font-style);
+  font-weight: var(--heading-mobile-h6-font-weight);
+  letter-spacing: var(--heading-mobile-h6-letter-spacing);
+  line-height: var(--heading-mobile-h6-line-height);
+}
+
+.layout-6.breakpoint-39-desktop .subheading-two-2 {
+  font-family: var(--heading-desktop-h6-font-family);
+  font-size: var(--heading-desktop-h6-font-size);
+  font-style: var(--heading-desktop-h6-font-style);
+  font-weight: var(--heading-desktop-h6-font-weight);
+  letter-spacing: var(--heading-desktop-h6-letter-spacing);
+  line-height: var(--heading-desktop-h6-line-height);
+}
+
+.layout-6.breakpoint-39-mobile .placeholder-image-3 {
+  align-self: stretch;
+  height: 348px;
+  width: 100%;
+}
+
+.layout-6.breakpoint-39-desktop .placeholder-image-3 {
+  flex: 1;
+  flex-grow: 1;
+  height: 640px;
+}

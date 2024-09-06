@@ -1,0 +1,235 @@
+.button {
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+  position: relative;
+}
+
+.button .text-wrapper {
+  font-family: var(--text-regular-normal-font-family);
+  font-size: var(--text-regular-normal-font-size);
+  font-style: var(--text-regular-normal-font-style);
+  font-weight: var(--text-regular-normal-font-weight);
+  letter-spacing: var(--text-regular-normal-letter-spacing);
+  line-height: var(--text-regular-normal-line-height);
+  position: relative;
+  white-space: nowrap;
+  width: fit-content;
+}
+
+.button .icon-relume {
+  height: 24px !important;
+  position: relative !important;
+  width: 24px !important;
+}
+
+.button .div {
+  font-family: var(--text-regular-normal-font-family);
+  font-size: var(--text-regular-normal-font-size);
+  font-style: var(--text-regular-normal-font-style);
+  font-weight: var(--text-regular-normal-font-weight);
+  letter-spacing: var(--text-regular-normal-letter-spacing);
+  line-height: var(--text-regular-normal-line-height);
+  position: relative;
+  white-space: nowrap;
+  width: fit-content;
+}
+
+.button.no-icon {
+  gap: 8px;
+}
+
+.button.link {
+  gap: 8px;
+}
+
+.button.primary {
+  border: 1px solid;
+}
+
+.button.secondary {
+  border: 1px solid;
+}
+
+.button.no-icon.small-true {
+  padding: 8px 20px;
+}
+
+.button.secondary.dark-mode-true {
+  border-color: var(--primitive-color-neutral-white-duplicate);
+}
+
+.button.only.small-true {
+  padding: 8px;
+}
+
+.button.secondary.only {
+  gap: 12px;
+}
+
+.button.primary.only {
+  gap: 12px;
+}
+
+.button.tertiary.trailing {
+  gap: 12px;
+}
+
+.button.small-true.trailing {
+  padding: 8px 20px;
+}
+
+.button.primary.dark-mode-false {
+  background-color: #000000;
+  border-color: #000000;
+}
+
+.button.primary.trailing {
+  gap: 12px;
+}
+
+.button.tertiary.leading {
+  gap: 12px;
+}
+
+.button.primary.dark-mode-true {
+  background-color: var(--primitive-color-neutral-white-duplicate);
+  border-color: var(--primitive-color-neutral-white-duplicate);
+}
+
+.button.small-true.leading {
+  padding: 8px 20px;
+}
+
+.button.secondary.leading {
+  gap: 12px;
+}
+
+.button.primary.leading {
+  gap: 12px;
+}
+
+.button.secondary.dark-mode-false {
+  border-color: #000000;
+}
+
+.button.secondary.trailing {
+  gap: 12px;
+}
+
+.button.secondary.small-false.leading {
+  padding: 12px 24px;
+}
+
+.button.secondary.small-false.no-icon {
+  padding: 12px 24px;
+}
+
+.button.small-false.tertiary.leading {
+  padding: 12px 24px;
+}
+
+.button.primary.small-false.leading {
+  padding: 12px 24px;
+}
+
+.button.secondary.small-false.only {
+  padding: 12px;
+}
+
+.button.small-false.tertiary.trailing {
+  padding: 12px 24px;
+}
+
+.button.only.small-true.tertiary {
+  gap: 12px;
+}
+
+.button.secondary.small-false.trailing {
+  padding: 12px 24px;
+}
+
+.button.primary.small-false.no-icon {
+  padding: 12px 24px;
+}
+
+.button.primary.small-false.trailing {
+  padding: 12px 24px;
+}
+
+.button.primary.small-false.only {
+  padding: 12px;
+}
+
+.button.small-false.no-icon.tertiary {
+  padding: 12px 24px;
+}
+
+.button.small-false.only.tertiary {
+  gap: 8px;
+  padding: 12px;
+}
+
+.button.primary.dark-mode-true .text-wrapper {
+  color: var(--semantic-text-primary-duplicate);
+}
+
+.button.secondary.dark-mode-true .text-wrapper {
+  color: #ffffff;
+}
+
+.button.dark-mode-true.tertiary .text-wrapper {
+  color: #ffffff;
+}
+
+.button.dark-mode-false.link .text-wrapper {
+  color: var(--semantic-text-primary-duplicate);
+}
+
+.button.dark-mode-true.link .text-wrapper {
+  color: #ffffff;
+}
+
+.button.secondary.dark-mode-false .text-wrapper {
+  color: var(--semantic-text-primary-duplicate);
+}
+
+.button.primary.dark-mode-false .text-wrapper {
+  color: #ffffff;
+}
+
+.button.dark-mode-false.tertiary .text-wrapper {
+  color: var(--semantic-text-primary-duplicate);
+}
+
+.button.primary.dark-mode-true .div {
+  color: var(--semantic-text-primary-duplicate);
+}
+
+.button.secondary.dark-mode-true .div {
+  color: #ffffff;
+}
+
+.button.dark-mode-true.tertiary .div {
+  color: #ffffff;
+}
+
+.button.dark-mode-false.link .div {
+  color: var(--semantic-text-primary-duplicate);
+}
+
+.button.dark-mode-true.link .div {
+  color: #ffffff;
+}
+
+.button.secondary.dark-mode-false .div {
+  color: var(--semantic-text-primary-duplicate);
+}
+
+.button.primary.dark-mode-false .div {
+  color: #ffffff;
+}
+
+.button.dark-mode-false.tertiary .div {
+  color: var(--semantic-text-primary-duplicate);
+}
