@@ -1,9 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
-import { useState } from 'react';
 import { Upload, Users, MessageSquare, Search, LogOut, FileText, CheckSquare, XSquare } from 'lucide-react';
 import axios from 'axios';
-
 
 const AdminDashboard = () => {
   return (
@@ -55,8 +53,6 @@ const SidebarItem = ({ icon, text, to, active }) => (
     <span className="ml-2">{text}</span>
   </Link>
 );
-
-axios.defaults.withCredentials = true;
 
 const Header = () => {
   const navigate = useNavigate();
@@ -146,7 +142,7 @@ const UploadContent = () => {
       setMessage(error.response?.data?.error || 'An error occurred');
     } finally {
       setIsLoading(false);
-      setFile(null); // Reset file selection after upload
+      setFile(null);
     }
   };
 
@@ -200,7 +196,6 @@ const ReportsContent = () => (
         </tr>
       </thead>
       <tbody className="bg-white divide-y divide-gray-200">
-        {/* Sample data - replace with actual data */}
         <ReportRow date="2024-09-10" beach="Clifton" type="Water Quality" status="Pending" />
         <ReportRow date="2024-09-09" beach="Muizenberg" type="Litter" status="Reviewed" />
       </tbody>
@@ -226,45 +221,79 @@ const ReportRow = ({ date, beach, type, status }) => (
   </tr>
 );
 
-const PostsContent = () => (
-  <div className="bg-white shadow-md rounded-lg p-6">
-    <h2 className="text-2xl font-semibold text-gray-800 mb-4">Community Posts</h2>
-    <table className="min-w-full">
-      <thead>
-        <tr className="bg-gray-100">
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Author</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Content Preview</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-        </tr>
-      </thead>
-      <tbody className="bg-white divide-y divide-gray-200">
-        {/* Sample data - replace with actual data */}
-        <PostRow date="2024-09-10" author="JohnDoe" content="Great day at the beach!" status="Pending" />
-        <PostRow date="2024-09-09" author="JaneSmith" content="Water seemed a bit murky today." status="Approved" />
-      </tbody>
-    </table>
-  </div>
-);
+const PostsContent = () => {
+  const [posts, setPosts] = useState([]);
 
-const PostRow = ({ date, author, content, status }) => (
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const fetchPosts = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/comments/pending');
+      setPosts(response.data);
+    } catch (error) {
+      console.error('Error fetching pending comments:', error);
+    }
+  };
+
+  const handleApprove = async (postId) => {
+    try {
+      await axios.post(`http://localhost:5000/api/comments/${postId}/approve`);
+      fetchPosts();
+    } catch (error) {
+      console.error('Error approving comment:', error);
+    }
+  };
+
+  const handleDisapprove = async (postId) => {
+    try {
+      await axios.post(`http://localhost:5000/api/comments/${postId}/disapprove`);
+      fetchPosts();
+    } catch (error) {
+      console.error('Error disapproving comment:', error);
+    }
+  };
+
+  return (
+    <div className="bg-white shadow-md rounded-lg p-6">
+      <h2 className="text-2xl font-semibold text-gray-800 mb-4">Community Posts</h2>
+      <table className="min-w-full">
+        <thead>
+          <tr className="bg-gray-100">
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Beach</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Author</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Content</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {posts.map((post) => (
+            <PostRow
+              key={post.id}
+              post={post}
+              onApprove={() => handleApprove(post.id)}
+              onDisapprove={() => handleDisapprove(post.id)}
+            />
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+const PostRow = ({ post, onApprove, onDisapprove }) => (
   <tr>
-    <td className="px-6 py-4 whitespace-nowrap">{date}</td>
-    <td className="px-6 py-4 whitespace-nowrap">{author}</td>
-    <td className="px-6 py-4 whitespace-nowrap">{content.substring(0, 30)}...</td>
-    <td className="px-6 py-4 whitespace-nowrap">
-      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-        status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
-      }`}>
-        {status}
-      </span>
-    </td>
+    <td className="px-6 py-4 whitespace-nowrap">{new Date(post.createdAt).toLocaleDateString()}</td>
+    <td className="px-6 py-4 whitespace-nowrap">{post.beachName}</td>
+    <td className="px-6 py-4 whitespace-nowrap">{post.author}</td>
+    <td className="px-6 py-4">{post.content}</td>
     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-      <button className="text-green-600 hover:text-green-900 mr-2">
+      <button onClick={onApprove} className="text-green-600 hover:text-green-900 mr-2">
         <CheckSquare size={18} />
       </button>
-      <button className="text-red-600 hover:text-red-900">
+      <button onClick={onDisapprove} className="text-red-600 hover:text-red-900">
         <XSquare size={18} />
       </button>
     </td>

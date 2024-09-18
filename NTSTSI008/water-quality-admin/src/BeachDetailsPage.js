@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { MapPin, Droplet, ThermometerSun, Wind, MessageSquare, AlertTriangle } from 'lucide-react';
+import axios from 'axios';
 
 const BeachDetailsPage = () => {
   const { beachName } = useParams();
   const [activeTab, setActiveTab] = useState('overview');
+  const [comment, setComment] = useState('');
+  const [approvedComments, setApprovedComments] = useState([]);
 
   // Placeholder data - replace with actual data fetching logic
   const beachData = {
@@ -16,6 +19,34 @@ const BeachDetailsPage = () => {
     windSpeed: '15 km/h',
     warnings: ['Strong currents'],
     description: 'A beautiful sandy beach with crystal clear waters, perfect for swimming and sunbathing.',
+  };
+
+  useEffect(() => {
+    fetchApprovedComments();
+  }, [beachName]);
+
+  const fetchApprovedComments = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/comments/${beachName}`);
+      setApprovedComments(response.data);
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+    }
+  };
+
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post('http://localhost:5000/api/comments', {
+        beachName,
+        content: comment,
+      });
+      setComment('');
+      alert('Your comment has been submitted for approval.');
+    } catch (error) {
+      console.error('Error submitting comment:', error);
+      alert('Failed to submit comment. Please try again.');
+    }
   };
 
   return (
@@ -101,13 +132,34 @@ const BeachDetailsPage = () => {
                 ) : (
                   <div>
                     <h3 className="text-lg font-semibold mb-2">Community Posts</h3>
-                    {/* Add community posts or comments here */}
-                    <div className="bg-gray-100 p-4 rounded-lg">
-                      <div className="flex items-center mb-2">
-                        <MessageSquare className="mr-2 text-blue-600" />
-                        <span className="font-semibold">John Doe</span>
-                      </div>
-                      <p>Great beach day! The water was perfect for swimming.</p>
+                    <div className="mb-4">
+                      <form onSubmit={handleCommentSubmit}>
+                        <textarea
+                          className="w-full p-2 border rounded"
+                          rows="3"
+                          value={comment}
+                          onChange={(e) => setComment(e.target.value)}
+                          placeholder="Share your experience at this beach..."
+                          required
+                        ></textarea>
+                        <button
+                          type="submit"
+                          className="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                        >
+                          Submit Comment
+                        </button>
+                      </form>
+                    </div>
+                    <div className="space-y-4">
+                      {approvedComments.map((comment, index) => (
+                        <div key={index} className="bg-gray-100 p-4 rounded-lg">
+                          <div className="flex items-center mb-2">
+                            <MessageSquare className="mr-2 text-blue-600" />
+                            <span className="font-semibold">{comment.author}</span>
+                          </div>
+                          <p>{comment.content}</p>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
