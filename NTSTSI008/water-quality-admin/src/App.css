@@ -1,3 +1,4 @@
+/* Global styles */
 .App {
   text-align: center;
 }
@@ -35,4 +36,182 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* --- Beach Details Page Styling --- */
+
+/* Styling for Community Section */
+.beach-details__community {
+  margin-top: 40px;
+  text-align: left;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); /* Lighter shadow */
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Posts Wrapper */
+.beach-details__posts {
+  margin-top: 30px;
+}
+
+/* Individual Post Styling */
+.beach-details__post {
+  background-color: #f9f9f9; /* Light grey background for posts */
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Hover effect on post */
+.beach-details__post:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Post Header (Author & Date) */
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.post-author {
+  font-weight: 600;
+  color: #333;
+}
+
+.post-date {
+  font-size: 0.85rem;
+  color: #999;
+}
+
+/* Post Content */
+.post-content {
+  font-size: 1rem;
+  color: #444;
+  line-height: 1.5;
+}
+
+/* Comment Form Styling */
+.beach-details__comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+  background-color: #f7f7f7; /* Slight background for the comment form */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+}
+
+/* Textarea for comment input */
+.beach-details__comment-input {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.beach-details__comment-input:focus {
+  border-color: #007bff; /* Highlight the border on focus */
+}
+
+/* Submit Button */
+.beach-details__submit-button {
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.beach-details__submit-button:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+/* Styling for Beach Info Items */
+.beach-details__info-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #007bff;
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  width: fit-content;
+}
+
+.beach-details__info-item:hover {
+  background-color: #0056b3;
+  cursor: pointer;
+}
+
+/* Info Icon Styling */
+.beach-details__info-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Title and Text Styling */
+.beach-details__title {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.beach-details__description-title, 
+.beach-details__community-title {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.beach-details__description {
+  margin-top: 30px;
+  line-height: 1.6;
+  color: #444;
+}
+
+/* Link Button Back to Home */
+.beach-details__back-button {
+  text-decoration: none;
+  color: #007bff;
+  background-color: #f0f0f0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.beach-details__back-button:hover {
+  background-color: #e0e0e0;
+}
+
+/* Map container */
+.beach-details__map-container {
+  margin-bottom: 30px;
+  height: 400px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }

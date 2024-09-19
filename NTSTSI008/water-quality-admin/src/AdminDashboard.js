@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
-import { Upload, Users, MessageSquare, Search, LogOut, FileText, CheckSquare, XSquare } from 'lucide-react';
+import { Upload, Users, MessageSquare, LogOut, FileText, CheckSquare, XSquare } from 'lucide-react';
 import axios from 'axios';
 
 const AdminDashboard = () => {
@@ -12,7 +12,7 @@ const AdminDashboard = () => {
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
           <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
             <Routes>
-              <Route path="/" element={<DashboardContent />} />
+              <Route path="/" element={<PostsContent />} />
               <Route path="/upload" element={<UploadContent />} />
               <Route path="/reports" element={<ReportsContent />} />
               <Route path="/posts" element={<PostsContent />} />
@@ -33,10 +33,9 @@ const Sidebar = () => {
         <h1 className="text-2xl font-bold">Admin Dashboard</h1>
       </div>
       <nav className="mt-8">
-        <SidebarItem icon={<FileText />} text="Dashboard" to="/admin" active={location.pathname === '/admin'} />
+        <SidebarItem icon={<MessageSquare />} text="Community Posts" to="/admin/posts" active={location.pathname === '/admin/posts'} />
         <SidebarItem icon={<Upload />} text="Upload Data" to="/admin/upload" active={location.pathname === '/admin/upload'} />
         <SidebarItem icon={<Users />} text="Beachgoer Reports" to="/admin/reports" active={location.pathname === '/admin/reports'} />
-        <SidebarItem icon={<MessageSquare />} text="Community Posts" to="/admin/posts" active={location.pathname === '/admin/posts'} />
       </nav>
     </div>
   );
@@ -45,9 +44,7 @@ const Sidebar = () => {
 const SidebarItem = ({ icon, text, to, active }) => (
   <Link
     to={to}
-    className={`flex items-center py-2 px-4 transition duration-200 ${
-      active ? 'bg-indigo-800' : 'hover:bg-indigo-600'
-    }`}
+    className={`flex items-center py-2 px-4 transition duration-200 ${active ? 'bg-indigo-800' : 'hover:bg-indigo-600'}`}
   >
     {icon}
     <span className="ml-2">{text}</span>
@@ -74,35 +71,16 @@ const Header = () => {
     <header className="bg-white shadow-sm">
       <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-800">Water Quality Management</h2>
-        <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded-full flex items-center hover:bg-red-600 transition duration-300">
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 text-white px-4 py-2 rounded-full flex items-center hover:bg-red-600 transition duration-300"
+        >
           <LogOut size={18} className="mr-2" /> Logout
         </button>
       </div>
     </header>
   );
 };
-
-const DashboardContent = () => (
-  <div>
-    <h2 className="text-2xl font-semibold text-gray-800 mb-4">Today's Overview</h2>
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <StatCard title="Total Beaches" value="15" icon={<FileText size={24} />} color="bg-blue-500" />
-      <StatCard title="New Reports" value="5" icon={<Users size={24} />} color="bg-green-500" />
-      <StatCard title="Pending Posts" value="8" icon={<MessageSquare size={24} />} color="bg-yellow-500" />
-      <StatCard title="Data Updates" value="3" icon={<Upload size={24} />} color="bg-purple-500" />
-    </div>
-  </div>
-);
-
-const StatCard = ({ title, value, icon, color }) => (
-  <div className={`${color} text-white rounded-lg shadow-md p-4 flex items-center justify-between`}>
-    <div>
-      <h3 className="text-lg font-semibold">{title}</h3>
-      <p className="text-3xl font-bold">{value}</p>
-    </div>
-    <div className="text-white opacity-75">{icon}</div>
-  </div>
-);
 
 const UploadContent = () => {
   const [file, setFile] = useState(null);
@@ -134,8 +112,8 @@ const UploadContent = () => {
     try {
       const response = await axios.post('http://localhost:5001/upload', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          'Content-Type': 'multipart/form-data',
+        },
       });
       setMessage(response.data.message);
     } catch (error) {
@@ -153,27 +131,15 @@ const UploadContent = () => {
         <div className="border-dashed border-2 border-gray-300 rounded-lg p-8 text-center">
           <Upload size={48} className="mx-auto text-gray-400 mb-4" />
           <p className="text-gray-600 mb-2">Click the button below to open file selector</p>
-          <input 
-            type="file" 
-            className="hidden" 
-            id="file-upload" 
-            accept=".pdf"
-            onChange={handleFileChange}
-          />
+          <input type="file" className="hidden" id="file-upload" accept=".pdf" onChange={handleFileChange} />
           <label htmlFor="file-upload" className="bg-indigo-600 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-indigo-700 transition duration-300">
             Select File
           </label>
           {file && (
-            <p className="mt-2 text-sm text-gray-600">
-              Selected file: {file.name}
-            </p>
+            <p className="mt-2 text-sm text-gray-600">Selected file: {file.name}</p>
           )}
         </div>
-        <button 
-          type="submit" 
-          className="mt-4 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-300"
-          disabled={isLoading || !file}
-        >
+        <button type="submit" className="mt-4 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-300" disabled={isLoading || !file}>
           {isLoading ? 'Uploading...' : 'Upload'}
         </button>
       </form>
@@ -209,9 +175,7 @@ const ReportRow = ({ date, beach, type, status }) => (
     <td className="px-6 py-4 whitespace-nowrap">{beach}</td>
     <td className="px-6 py-4 whitespace-nowrap">{type}</td>
     <td className="px-6 py-4 whitespace-nowrap">
-      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-        status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
-      }`}>
+      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
         {status}
       </span>
     </td>
@@ -257,7 +221,7 @@ const PostsContent = () => {
 
   return (
     <div className="bg-white shadow-md rounded-lg p-6">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-4">Community Posts</h2>
+      <h2 className="text-2xl font-semibold text-gray-800 mb-4">Pending Community Posts</h2>
       <table className="min-w-full">
         <thead>
           <tr className="bg-gray-100">
@@ -270,12 +234,7 @@ const PostsContent = () => {
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {posts.map((post) => (
-            <PostRow
-              key={post.id}
-              post={post}
-              onApprove={() => handleApprove(post.id)}
-              onDisapprove={() => handleDisapprove(post.id)}
-            />
+            <PostRow key={post._id} post={post} onApprove={() => handleApprove(post._id)} onDisapprove={() => handleDisapprove(post._id)} />
           ))}
         </tbody>
       </table>

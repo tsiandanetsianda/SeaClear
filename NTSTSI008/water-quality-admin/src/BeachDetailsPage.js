@@ -1,170 +1,198 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { MapPin, Droplet, ThermometerSun, Wind, MessageSquare, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams, Link, useLocation } from 'react-router-dom';
+import { MapPin, Droplet, ThermometerSun, Wind, MessageSquare } from 'lucide-react';
 import axios from 'axios';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import './BeachDetails.css';
+
+const OPENWEATHER_API_KEY = 'cd605f37629117f007b32d581e8f19af';
+
+function MapUpdater({ center }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center, 13);
+  }, [center, map]);
+  return null;
+}
 
 const BeachDetailsPage = () => {
   const { beachName } = useParams();
-  const [activeTab, setActiveTab] = useState('overview');
+  const location = useLocation();
+  const { coordinates } = location.state || { coordinates: [-34.1126, 18.4662] };
   const [comment, setComment] = useState('');
-  const [approvedComments, setApprovedComments] = useState([]);
-
-  // Placeholder data - replace with actual data fetching logic
-  const beachData = {
+  const [communityPosts, setCommunityPosts] = useState([]);
+  const [beachData, setBeachData] = useState({
     name: beachName.replace('-', ' '),
-    image: '/images/Beach-Image.jpg',
     location: 'Cape Town, South Africa',
     waterQuality: 'Good',
     temperature: '22°C',
     windSpeed: '15 km/h',
-    warnings: ['Strong currents'],
     description: 'A beautiful sandy beach with crystal clear waters, perfect for swimming and sunbathing.',
-  };
+    coordinates: coordinates,
+  });
+  const [weather, setWeather] = useState(null);
+  const mapRef = useRef(null);
 
   useEffect(() => {
-    fetchApprovedComments();
-  }, [beachName]);
+    fetchBeachData();
+    fetchCommunityPosts();  // Fetch only approved posts
+    fetchWeatherData();
+    const intervalId = setInterval(fetchWeatherData, 600000); // Update weather every 10 minutes
+    return () => clearInterval(intervalId);
+  }, [beachName, coordinates]);
 
-  const fetchApprovedComments = async () => {
+  useEffect(() => {
+    if (mapRef.current) {
+      mapRef.current.invalidateSize();
+    }
+  }, [mapRef]);
+
+  const fetchBeachData = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/comments/${beachName}`);
-      setApprovedComments(response.data);
+      const response = await axios.get(`http://localhost:5000/api/beaches/${beachName}`);
+      setBeachData(prev => ({ ...prev, ...response.data, coordinates }));
     } catch (error) {
-      console.error('Error fetching comments:', error);
+      console.error('Error fetching beach data:', error);
+    }
+  };
+
+  const fetchWeatherData = async () => {
+    try {
+      const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${coordinates[0]}&lon=${coordinates[1]}&units=metric&appid=${OPENWEATHER_API_KEY}`);
+      setWeather(response.data);
+    } catch (error) {
+      console.error('Error fetching weather data:', error);
+    }
+  };
+
+  const fetchCommunityPosts = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/community/posts/${beachName}`);
+      const approvedPosts = response.data.filter(post => post.status === 'approved');  // Show only approved posts
+      setCommunityPosts(approvedPosts);
+    } catch (error) {
+      console.error('Error fetching community posts:', error);
     }
   };
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/comments', {
+      await axios.post('http://localhost:5000/api/community/posts', {
         beachName,
         content: comment,
       });
       setComment('');
-      alert('Your comment has been submitted for approval.');
+      fetchCommunityPosts(); // Refresh the posts after submitting
     } catch (error) {
       console.error('Error submitting comment:', error);
       alert('Failed to submit comment. Please try again.');
     }
   };
 
+  const customIcon = L.icon({
+    iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  });
+
   return (
-    <div className="min-h-screen bg-gray-100">
-      <header className="bg-blue-600 text-white">
-        <div className="container mx-auto px-6 py-4">
-          <Link to="/" className="text-white hover:text-blue-200">← Back to Home</Link>
-          <h1 className="text-3xl font-bold mt-2">{beachData.name}</h1>
-        </div>
+    <div className="beach-details">
+      <header className="beach-details__header">
+        <Link to="/" className="beach-details__back-button">← Back to Home</Link>
+        <h1 className="beach-details__title">{beachData.name}</h1>
       </header>
 
-      <main className="container mx-auto px-6 py-8">
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <img src={beachData.image} alt={beachData.name} className="w-full h-64 object-cover" />
-          
-          <div className="p-6">
-            <div className="flex flex-wrap gap-4 mb-6">
-              <div className="flex items-center">
-                <MapPin className="mr-2 text-blue-600" />
-                <span>{beachData.location}</span>
-              </div>
-              <div className="flex items-center">
-                <Droplet className="mr-2 text-blue-600" />
-                <span>Water Quality: {beachData.waterQuality}</span>
-              </div>
-              <div className="flex items-center">
-                <ThermometerSun className="mr-2 text-blue-600" />
-                <span>Temperature: {beachData.temperature}</span>
-              </div>
-              <div className="flex items-center">
-                <Wind className="mr-2 text-blue-600" />
-                <span>Wind: {beachData.windSpeed}</span>
-              </div>
-            </div>
-
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">Warnings</h2>
-              {beachData.warnings.map((warning, index) => (
-                <div key={index} className="flex items-center text-yellow-600">
-                  <AlertTriangle className="mr-2" />
-                  <span>{warning}</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">Description</h2>
-              <p>{beachData.description}</p>
-            </div>
-
-            <div>
-              <div className="border-b border-gray-200">
-                <nav className="-mb-px flex">
-                  <button
-                    className={`mr-8 py-4 text-sm font-medium ${
-                      activeTab === 'overview'
-                        ? 'border-b-2 border-blue-500 text-blue-600'
-                        : 'text-gray-500 hover:text-gray-700'
-                    }`}
-                    onClick={() => setActiveTab('overview')}
-                  >
-                    Overview
-                  </button>
-                  <button
-                    className={`mr-8 py-4 text-sm font-medium ${
-                      activeTab === 'community'
-                        ? 'border-b-2 border-blue-500 text-blue-600'
-                        : 'text-gray-500 hover:text-gray-700'
-                    }`}
-                    onClick={() => setActiveTab('community')}
-                  >
-                    Community
-                  </button>
-                </nav>
-              </div>
-              <div className="mt-4">
-                {activeTab === 'overview' ? (
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Water Quality History</h3>
-                    {/* Add water quality chart or data here */}
-                    <p>Water quality data visualization coming soon...</p>
-                  </div>
-                ) : (
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Community Posts</h3>
-                    <div className="mb-4">
-                      <form onSubmit={handleCommentSubmit}>
-                        <textarea
-                          className="w-full p-2 border rounded"
-                          rows="3"
-                          value={comment}
-                          onChange={(e) => setComment(e.target.value)}
-                          placeholder="Share your experience at this beach..."
-                          required
-                        ></textarea>
-                        <button
-                          type="submit"
-                          className="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                        >
-                          Submit Comment
-                        </button>
-                      </form>
-                    </div>
-                    <div className="space-y-4">
-                      {approvedComments.map((comment, index) => (
-                        <div key={index} className="bg-gray-100 p-4 rounded-lg">
-                          <div className="flex items-center mb-2">
-                            <MessageSquare className="mr-2 text-blue-600" />
-                            <span className="font-semibold">{comment.author}</span>
-                          </div>
-                          <p>{comment.content}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+      <main className="beach-details__content">
+        <div className="beach-details__map-container">
+          <MapContainer 
+            center={coordinates} 
+            zoom={13} 
+            style={{ height: '100%', width: '100%' }}
+            ref={mapRef}
+          >
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
+            <Marker position={coordinates} icon={customIcon}>
+              <Popup>
+                <strong>{beachData.name}</strong><br />
+                {weather && (
+                  <>
+                    Temperature: {Math.round(weather.main.temp)}°C<br />
+                    Wind: {Math.round(weather.wind.speed * 3.6)} km/h
+                  </>
                 )}
+              </Popup>
+            </Marker>
+            <MapUpdater center={coordinates} />
+          </MapContainer>
+        </div>
+
+        <div className="beach-details__info">
+          <div className="beach-details__info-item">
+            <MapPin className="beach-details__info-icon" />
+            <span>{beachData.location}</span>
+          </div>
+          <div className="beach-details__info-item">
+            <Droplet className="beach-details__info-icon" />
+            <span>Water Quality: {beachData.waterQuality}</span>
+          </div>
+          {weather && (
+            <>
+              <div className="beach-details__info-item">
+                <ThermometerSun className="beach-details__info-icon" />
+                <span>Temperature: {Math.round(weather.main.temp)}°C</span>
               </div>
-            </div>
+              <div className="beach-details__info-item">
+                <Wind className="beach-details__info-icon" />
+                <span>Wind: {Math.round(weather.wind.speed * 3.6)} km/h</span>
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="beach-details__description">
+          <h2 className="beach-details__description-title">Description</h2>
+          <p>{beachData.description}</p>
+        </div>
+
+        <div className="beach-details__community">
+          <h2 className="beach-details__community-title">Community Posts</h2>
+          <form onSubmit={handleCommentSubmit} className="beach-details__comment-form">
+            <textarea
+              className="beach-details__comment-input"
+              rows="3"
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="Share your experience at this beach..."
+              required
+            ></textarea>
+            <button type="submit" className="beach-details__submit-button">
+              Submit Post
+            </button>
+          </form>
+
+          <div className="beach-details__posts">
+            {communityPosts.length === 0 ? (
+              <p>No posts yet. Be the first to share your experience!</p>
+            ) : (
+              communityPosts.map((post, index) => (
+                <div key={index} className="beach-details__post">
+                  <div className="post-header">
+                    <span className="post-author">{post.author || 'Anonymous'}</span>
+                    <span className="post-date">{new Date(post.created_at).toLocaleString()}</span>
+                  </div>
+                  <p className="post-content">{post.content}</p>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </main>
