@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Search } from 'lucide-react';
 import axios from 'axios';
+import { Search } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const HomePage = () => {
   const [beaches, setBeaches] = useState([]);
@@ -40,6 +40,7 @@ const HomePage = () => {
             <div className="flex space-x-4 items-center">
               <Link to="/education" className="text-white hover:text-blue-200">Learn</Link>
               <Link to="/about" className="text-white hover:text-blue-200">About</Link>
+              <Link to="/community" className="text-white hover:text-blue-200">Community</Link> {/* New community tab */}
               <Link to="/login" className="bg-white text-blue-500 px-4 py-2 rounded-full hover:bg-blue-100 transition duration-300">Admin Login</Link>
             </div>
           </div>

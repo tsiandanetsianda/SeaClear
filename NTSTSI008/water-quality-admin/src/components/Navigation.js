@@ -1,6 +1,6 @@
+import { Menu, X } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,6 +11,7 @@ const Navigation = () => {
     { name: 'Beaches', path: '/beaches' },
     { name: 'Learn', path: '/education' },
     { name: 'About', path: '/about' },
+    { name: 'Community', path: '/community' },
   ];
 
   const toggleMenu = () => {

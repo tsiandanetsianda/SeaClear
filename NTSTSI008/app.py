@@ -18,6 +18,7 @@ client = MongoClient('mongodb://localhost:27017')
 db = client['water_quality_db']
 beach_collection = db['beach_data']
 comment_collection = db['beach_posts']
+community_collection = db['community_posts']  # Add a new collection for community posts
 
 class User(UserMixin):
     def __init__(self, id):
@@ -110,6 +111,24 @@ def disapprove_comment(comment_id):
     if result.deleted_count:
         return jsonify({"message": "Comment removed", "status": "success"}), 200
     return jsonify({"message": "Comment not found", "status": "error"}), 404
+
+# Community page API endpoints
+@app.route('/api/community/posts', methods=['GET'])
+def get_community_posts():
+    posts = list(community_collection.find({}, {'_id': 0, 'content': 1, 'author': 1, 'created_at': 1}))
+    return jsonify(posts), 200
+
+@app.route('/api/community/posts', methods=['POST'])
+@login_required
+def create_community_post():
+    data = request.get_json()
+    new_post = {
+        'content': data['content'],
+        'author': current_user.id,
+        'created_at': datetime.now().isoformat()
+    }
+    result = community_collection.insert_one(new_post)
+    return jsonify({"message": "Post created successfully", "status": "success"}), 201
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
