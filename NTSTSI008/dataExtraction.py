@@ -7,6 +7,7 @@ from datetime import datetime
 from bson import json_util
 import json
 import random
+from difflib import get_close_matches
 
 app = Flask(__name__)
 CORS(app)
@@ -51,21 +52,36 @@ def extract_data_from_pdf(pdf_file):
     
     sample_date = extract_sample_date(reader.pages[0].extract_text())
     
+    pdf_beaches = {}
+    for page in reader.pages:
+        text = page.extract_text()
+        matches = re.findall(r'([A-Za-z\s,\']+)\s+(\d+)\s+(\d+)\s+(\d+)', text)
+        for match in matches:
+            beach_name = match[0].strip()
+            values = [int(match[1]), int(match[2]), int(match[3])]
+            pdf_beaches[beach_name] = values
+    
+    # Match hardcoded beaches with PDF data
     for beach in hardcoded_beaches:
-        # Randomly generate values and safety status for demonstration
-        values = [random.randint(0, 500) for _ in range(3)]
-        is_safe = assess_safety(values)
-        
-        beach_data = {
-            'name': beach,
-            'values': values,
-            'date_uploaded': datetime.now(),
-            'date_sampled': sample_date,
-            'is_safe': is_safe
-        }
-        data.append(beach_data)
+        closest_match = get_close_matches(beach, pdf_beaches.keys(), n=1, cutoff=0.6)
+        if closest_match:
+            matched_beach = closest_match[0]
+            values = pdf_beaches[matched_beach]
+            is_safe = assess_safety(values)
+            
+            beach_data = {
+                'name': beach,
+                'matched_name': matched_beach,
+                'values': values,
+                'date_uploaded': datetime.now(),
+                'date_sampled': sample_date,
+                'is_safe': is_safe
+            }
+            data.append(beach_data)
     
     return data
+
+
 
 def assess_safety(values):
     max_value = max(values)
@@ -79,9 +95,9 @@ def assess_safety(values):
         return "Poor"
 
 def extract_sample_date(text):
-    date_match = re.search(r'(\d{1,2}\s+[A-Za-z]{3}\s+\d{2})', text)
+    date_match = re.search(r'(\d{1,2}\s+[A-Za-z]{3}\s+\d{2,4})', text)
     if date_match:
-        return datetime.combine(datetime.strptime(date_match.group(1), '%d %b %y'), datetime.min.time())
+        return datetime.strptime(date_match.group(1), '%d %b %y')
     return datetime.now()  # Fallback to current date if no date found
 
 @app.route('/upload', methods=['POST'])
