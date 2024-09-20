@@ -5,6 +5,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from pymongo import MongoClient
 from bson import ObjectId
 from datetime import datetime
+import urllib.parse
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -39,11 +40,11 @@ def login():
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
-    print(f"Login attempt for email: {email}")  # Log the email attempting to login
+    print(f"Login attempt for email: {email}")
     if email in users and check_password_hash(users[email]['password'], password):
         user = User(email)
         login_user(user, remember=True)
-        print(f"Login successful for email: {email}")  # Log successful login
+        print(f"Login successful for email: {email}")
         return jsonify({
             "message": "Logged in successfully",
             "status": "success",
@@ -52,7 +53,7 @@ def login():
                 "isAdmin": True  # Assuming all users in the users dict are admins
             }
         }), 200
-    print(f"Login failed for email: {email}")  # Log failed login attempt
+    print(f"Login failed for email: {email}")
     return jsonify({"message": "Invalid email or password", "status": "error"}), 401
 
 @app.route('/api/logout')
@@ -81,32 +82,41 @@ def initialize_community_posts():
 @app.route('/api/beaches', methods=['GET'])
 def get_beaches():
     beaches = list(beach_collection.find({}, {'_id': 0, 'name': 1, 'is_safe': 1, 'date_sampled': 1}))
+    print(f"Returning data for {len(beaches)} beaches")
     return jsonify(beaches)
 
-@app.route('/api/beaches/<path:beach_name>', methods=['GET'])
-def get_beach(beach_name):
-    beach = beach_collection.find_one({'name': beach_name}, {'_id': 0})
-    if beach:
-        return jsonify(beach), 200
-    return jsonify({"message": "Beach not found", "status": "error"}), 404
+@app.route('/api/beaches/<path:beach_name>')
+def get_beach_data(beach_name):
+    decoded_beach_name = urllib.parse.unquote(beach_name)
+    print(f"Fetching data for beach: {decoded_beach_name}")
+    beach_data = beach_collection.find_one({'name': decoded_beach_name}, {'_id': 0})
+    if beach_data:
+        print(f"Beach data found for {decoded_beach_name}")
+        return jsonify(beach_data)
+    else:
+        print(f"Beach not found: {decoded_beach_name}")
+        return jsonify({'error': 'Beach not found'}), 404
 
 @app.route('/api/community/posts/<path:beach_name>', methods=['GET'])
 def get_community_posts(beach_name):
     try:
-        beach_posts = community_posts_collection.find_one({'beach_name': beach_name})
+        decoded_beach_name = urllib.parse.unquote(beach_name)
+        print(f"Fetching community posts for beach: {decoded_beach_name}")
+        beach_posts = community_posts_collection.find_one({'beach_name': decoded_beach_name})
         if beach_posts:
             approved_posts = [post for post in beach_posts.get('posts', []) if post.get('status') == 'approved']
+            print(f"Returning {len(approved_posts)} approved posts for {decoded_beach_name}")
             return jsonify([{
                 'post_id': str(post['_id']),
                 'content': post['content'],
                 'author': post['author'],
                 'created_at': post['created_at']
             } for post in approved_posts]), 200
+        print(f"No posts found for {decoded_beach_name}")
         return jsonify([]), 200
     except Exception as e:
         print(f"Error in get_community_posts: {str(e)}")
         return jsonify({"error": "An error occurred while fetching community posts"}), 500
-
 
 @app.route('/api/community/posts/pending', methods=['GET'])
 @login_required
@@ -129,9 +139,7 @@ def get_pending_posts():
     except Exception as e:
         print(f"Error in get_pending_posts: {str(e)}")
         return jsonify({"error": "An error occurred while fetching pending posts"}), 500
-    
-    
-    
+
 @app.route('/api/community/posts/<post_id>/approve', methods=['POST'])
 @login_required
 def approve_post(post_id):
@@ -141,8 +149,10 @@ def approve_post(post_id):
             {'$set': {'posts.$.status': 'approved'}}
         )
         if result.modified_count:
+            print(f"Post {post_id} approved successfully")
             return jsonify({"message": "Post approved successfully", "status": "success"}), 200
         else:
+            print(f"Post {post_id} not found or already approved")
             return jsonify({"message": "Post not found or already approved", "status": "error"}), 404
     except Exception as e:
         print(f"Error in approve_post: {str(e)}")
@@ -157,8 +167,10 @@ def disapprove_post(post_id):
             {'$pull': {'posts': {'_id': ObjectId(post_id)}}}
         )
         if result.modified_count:
+            print(f"Post {post_id} deleted successfully")
             return jsonify({"message": "Post deleted successfully", "status": "success"}), 200
         else:
+            print(f"Post {post_id} not found")
             return jsonify({"message": "Post not found", "status": "error"}), 404
     except Exception as e:
         print(f"Error in disapprove_post: {str(e)}")
@@ -173,7 +185,7 @@ def create_community_post():
 
     new_post = {
         '_id': ObjectId(),
-        'beach_name': beach_name,  # Add this line to include beach_name in the post
+        'beach_name': beach_name,
         'content': content,
         'author': author,
         'created_at': datetime.now().isoformat(),
@@ -186,10 +198,12 @@ def create_community_post():
             {'$push': {'posts': new_post}},
             upsert=True
         )
+        print(f"New post submitted for {beach_name}")
         return jsonify({"message": "Post submitted for moderation", "status": "success"}), 201
     except Exception as e:
         print(f"Error in create_community_post: {str(e)}")
         return jsonify({"message": str(e), "status": "error"}), 400
 
 if __name__ == '__main__':
+    initialize_community_posts()
     app.run(debug=True, port=5000)
