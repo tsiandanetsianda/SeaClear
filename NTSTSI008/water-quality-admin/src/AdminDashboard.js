@@ -1,17 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
-import { Upload, Users, MessageSquare, LogOut, FileText, CheckSquare, XSquare, Droplet, AlertTriangle } from 'lucide-react';
+import { FileText, MessageSquare, Upload, Droplet, AlertTriangle, LogOut, CheckSquare, XSquare } from 'lucide-react';
 import axios from 'axios';
 
 const AdminDashboard = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       const response = await axios.get('http://localhost:5000/api/check-auth', { withCredentials: true });
       if (response.data.authenticated) {
@@ -23,7 +19,11 @@ const AdminDashboard = () => {
       console.error('Auth check failed:', error);
       navigate('/login');
     }
-  };
+  }, [navigate]);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   const handleLogout = async () => {
     try {
@@ -65,8 +65,8 @@ const Sidebar = () => {
   const location = useLocation();
 
   return (
-    <div className="bg-blue-800 text-blue-100 w-64 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out">
-      <nav>
+    <div className="bg-blue-800 text-blue-100 w-64 py-7 px-2 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out">
+      <nav className="flex flex-col space-y-2">
         <SidebarLink icon={FileText} text="Dashboard" to="/admin" active={location.pathname === '/admin'} />
         <SidebarLink icon={MessageSquare} text="Moderate Posts" to="/admin/posts" active={location.pathname === '/admin/posts'} />
         <SidebarLink icon={Upload} text="Upload Data" to="/admin/upload" active={location.pathname === '/admin/upload'} />
@@ -78,11 +78,17 @@ const Sidebar = () => {
 };
 
 const SidebarLink = ({ icon: Icon, text, to, active }) => (
-  <Link to={to} className={`flex items-center space-x-2 py-2.5 px-4 rounded transition duration-200 ${active ? 'bg-blue-700' : 'hover:bg-blue-700'}`}>
+  <Link
+    to={to}
+    className={`flex items-center space-x-2 py-2.5 px-4 rounded transition duration-200 ${
+      active ? 'bg-blue-700' : 'hover:bg-blue-700'
+    }`}
+  >
     <Icon size={20} />
     <span>{text}</span>
   </Link>
 );
+
 
 const Header = ({ user, onLogout }) => (
   <header className="bg-white shadow-sm">
@@ -152,7 +158,7 @@ const PostsContent = () => {
   const handleApprove = async (postId) => {
     try {
       await axios.post(`http://localhost:5000/api/community/posts/${postId}/approve`, {}, { withCredentials: true });
-      fetchPendingPosts(); // Refresh the list after approval
+      fetchPendingPosts();
     } catch (error) {
       console.error('Error approving post:', error);
       alert('Failed to approve post. Please try again.');
@@ -162,7 +168,7 @@ const PostsContent = () => {
   const handleDisapprove = async (postId) => {
     try {
       await axios.post(`http://localhost:5000/api/community/posts/${postId}/disapprove`, {}, { withCredentials: true });
-      fetchPendingPosts(); // Refresh the list after disapproval
+      fetchPendingPosts();
     } catch (error) {
       console.error('Error disapproving post:', error);
       alert('Failed to disapprove post. Please try again.');
