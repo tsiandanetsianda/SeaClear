@@ -24,7 +24,7 @@ const BeachDetailsPage = () => {
   const [comment, setComment] = useState('');
   const [communityPosts, setCommunityPosts] = useState([]);
   const [beachData, setBeachData] = useState({
-    name: beachName.replace('-', ' '),
+    name: beachName.replace(/-/g, ' '),
     location: 'Cape Town, South Africa',
     waterQuality: 'Good',
     temperature: '22°C',
@@ -33,11 +33,11 @@ const BeachDetailsPage = () => {
     coordinates: coordinates,
   });
   const [weather, setWeather] = useState(null);
-  const mapRef = useRef(null);
+  const mapRef = useRef(null)
 
   useEffect(() => {
     fetchBeachData();
-    fetchCommunityPosts();  // Fetch only approved posts
+    fetchCommunityPosts();
     fetchWeatherData();
     const intervalId = setInterval(fetchWeatherData, 600000); // Update weather every 10 minutes
     return () => clearInterval(intervalId);
@@ -70,8 +70,7 @@ const BeachDetailsPage = () => {
   const fetchCommunityPosts = async () => {
     try {
       const response = await axios.get(`http://localhost:5000/api/community/posts/${beachName}`);
-      const approvedPosts = response.data.filter(post => post.status === 'approved');  // Show only approved posts
-      setCommunityPosts(approvedPosts);
+      setCommunityPosts(response.data);
     } catch (error) {
       console.error('Error fetching community posts:', error);
     }
@@ -81,11 +80,13 @@ const BeachDetailsPage = () => {
     e.preventDefault();
     try {
       await axios.post('http://localhost:5000/api/community/posts', {
-        beachName,
+        beachName: beachName,  // Use the beachName from the URL params
         content: comment,
       });
       setComment('');
-      fetchCommunityPosts(); // Refresh the posts after submitting
+      alert('Your post has been submitted for moderation.');
+      // Optionally, refresh the posts after submission
+      fetchCommunityPosts();
     } catch (error) {
       console.error('Error submitting comment:', error);
       alert('Failed to submit comment. Please try again.');
@@ -181,10 +182,10 @@ const BeachDetailsPage = () => {
 
           <div className="beach-details__posts">
             {communityPosts.length === 0 ? (
-              <p>No posts yet. Be the first to share your experience!</p>
+              <p>No approved posts yet. Be the first to share your experience!</p>
             ) : (
-              communityPosts.map((post, index) => (
-                <div key={index} className="beach-details__post">
+              communityPosts.map((post) => (
+                <div key={post.post_id} className="beach-details__post">
                   <div className="post-header">
                     <span className="post-author">{post.author || 'Anonymous'}</span>
                     <span className="post-date">{new Date(post.created_at).toLocaleString()}</span>
