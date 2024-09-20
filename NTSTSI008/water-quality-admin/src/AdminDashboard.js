@@ -80,12 +80,12 @@ const Sidebar = () => {
 const SidebarLink = ({ icon: Icon, text, to, active }) => (
   <Link
     to={to}
-    className={`flex items-center space-x-2 py-2.5 px-4 rounded transition duration-200 ${
-      active ? 'bg-blue-700' : 'hover:bg-blue-700'
+    className={`flex items-center space-x-3 py-2.5 px-4 rounded transition duration-200 ${
+      active ? 'bg-blue-700 text-white' : 'hover:bg-blue-700'
     }`}
   >
     <Icon size={20} />
-    <span>{text}</span>
+    <span className="text-sm font-medium">{text}</span>
   </Link>
 );
 

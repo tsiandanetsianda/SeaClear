@@ -195,18 +195,23 @@ const HomePage = () => {
             Discover Cape Town's beautiful beaches and check their water quality.
           </p>
           <div className="max-w-md mx-auto mb-12">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search for beaches..."
-                value={searchInput}
-                onChange={handleSearchInput}
-                className="w-full px-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-600"
-              />
-              <button className="absolute right-0 top-0 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition duration-300 h-full aspect-square flex items-center justify-center">
-                <Search size={20} />
-              </button>
-            </div>
+          <div className="relative max-w-md mx-auto mb-12">
+  <div className="relative">
+    <input
+      type="text"
+      placeholder="Search for beaches..."
+      value={searchInput}
+      onChange={handleSearchInput}
+      className="w-full px-4 py-2 pr-10 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-600"
+    />
+    <button className="absolute right-1 top-3 transform -translate-y-1/2 bg-blue-600 text-white p-1.5 rounded-full hover:bg-blue-700 transition duration-300 h-8 w-8 flex items-center justify-center">
+      <Search size={16} />
+    </button>
+  </div>
+</div>
+
+
+
             {searchResults.length > 0 && (
               <ul className="search-results bg-white mt-2 rounded-lg shadow-md">
                 {searchResults.map((beach, index) => (
