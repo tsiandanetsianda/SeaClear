@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Search } from 'lucide-react';
 import axios from 'axios';
+import { Search } from 'lucide-react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import './HomePage.css';
 
 const beachImages = [
@@ -254,9 +254,9 @@ const HomePage = () => {
         <div className="mb-12">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold text-white">Beaches in Cape Town</h2>
-            <button onClick={handleLearnMoreClick} className="bg-white text-blue-500 px-4 py-2 rounded-full hover:bg-blue-100 transition duration-300">
+            {/* <button onClick={handleLearnMoreClick} className="bg-white text-blue-500 px-4 py-2 rounded-full hover:bg-blue-100 transition duration-300">
               Learn More
-            </button>
+            </button> */}
           </div>
           <div ref={mapContainer} className="w-full h-96 rounded-lg overflow-hidden"></div>
         </div>

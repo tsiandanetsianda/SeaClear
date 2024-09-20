@@ -16,11 +16,14 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 # MongoDB connection
-client = MongoClient('mongodb://localhost:27017')
+client = MongoClient('mongodb://localhost:27017')  # Replace with your MongoDB URI if needed
 db = client['water_quality_db']
 beach_collection = db['beach_data']
 community_posts_collection = db['community_posts']
+general_discussions_collection = db['general_discussions']  # New collection for storing general discussions
+user_collection = db['users']  # Collection for storing user data
 
+# User class for Flask-Login
 class User(UserMixin):
     def __init__(self, id):
         self.id = id
@@ -36,6 +39,39 @@ users = {
     }
 }
 
+# Initialize general discussions collection
+def initialize_general_discussions():
+    existing_doc = general_discussions_collection.find_one({})
+    if not existing_doc:
+        general_discussions_collection.insert_one({
+            'discussions': []
+        })
+    print("General discussions collection initialized.")
+
+# Initialize community posts collection
+def initialize_community_posts():
+    beaches = list(beach_collection.find({}, {'name': 1}))
+    for beach in beaches:
+        existing_doc = community_posts_collection.find_one({'beach_name': beach['name']})
+        if not existing_doc:
+            community_posts_collection.insert_one({
+                'beach_name': beach['name'],
+                'posts': []
+            })
+    print("Community posts collection initialized.")
+
+# Helper function to convert MongoDB document to JSON serializable format
+def convert_document_to_serializable(doc):
+    if isinstance(doc, list):
+        return [convert_document_to_serializable(item) for item in doc]
+    elif isinstance(doc, dict):
+        return {k: convert_document_to_serializable(v) for k, v in doc.items()}
+    elif isinstance(doc, ObjectId):
+        return str(doc)
+    else:
+        return doc
+
+# Authentication routes
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -69,21 +105,10 @@ def check_auth():
         return jsonify({"authenticated": True, "user": current_user.id}), 200
     return jsonify({"authenticated": False}), 200
 
-def initialize_community_posts():
-    beaches = list(beach_collection.find({}, {'name': 1}))
-    for beach in beaches:
-        existing_doc = community_posts_collection.find_one({'beach_name': beach['name']})
-        if not existing_doc:
-            community_posts_collection.insert_one({
-                'beach_name': beach['name'],
-                'posts': []
-            })
-    print("Community posts collection initialized.")
-
+# Beach data routes
 @app.route('/api/beaches', methods=['GET'])
 def get_beaches():
     beaches = list(beach_collection.find({}, {'_id': 0, 'name': 1, 'is_safe': 1, 'date_sampled': 1}))
-    print(f"Returning data for {len(beaches)} beaches")
     return jsonify(beaches)
 
 @app.route('/api/beaches/<path:beach_name>')
@@ -92,31 +117,25 @@ def get_beach_data(beach_name):
     print(f"Fetching data for beach: {decoded_beach_name}")
     beach_data = beach_collection.find_one({'name': {'$regex': f'^{re.escape(decoded_beach_name)}$', '$options': 'i'}}, {'_id': 0})
     if beach_data:
-        print(f"Beach data found for {decoded_beach_name}")
         return jsonify(beach_data)
-    else:
-        print(f"Beach not found: {decoded_beach_name}")
-        return jsonify({'error': 'Beach not found'}), 404
+    return jsonify({'error': 'Beach not found'}), 404
 
+# Community posts routes
 @app.route('/api/community/posts/<path:beach_name>', methods=['GET'])
 def get_community_posts(beach_name):
     try:
         decoded_beach_name = urllib.parse.unquote(beach_name)
-        print(f"Fetching community posts for beach: {decoded_beach_name}")
         beach_posts = community_posts_collection.find_one({'beach_name': decoded_beach_name})
         if beach_posts:
             approved_posts = [post for post in beach_posts.get('posts', []) if post.get('status') == 'approved']
-            print(f"Returning {len(approved_posts)} approved posts for {decoded_beach_name}")
             return jsonify([{
                 'post_id': str(post['_id']),
                 'content': post['content'],
                 'author': post['author'],
                 'created_at': post['created_at']
             } for post in approved_posts]), 200
-        print(f"No posts found for {decoded_beach_name}")
         return jsonify([]), 200
     except Exception as e:
-        print(f"Error in get_community_posts: {str(e)}")
         return jsonify({"error": "An error occurred while fetching community posts"}), 500
 
 @app.route('/api/community/posts/pending', methods=['GET'])
@@ -135,10 +154,8 @@ def get_pending_posts():
                         'author': post.get('author', 'Anonymous'),
                         'created_at': post.get('created_at', 'No date')
                     })
-        print(f"Fetched {len(pending_posts)} pending posts")
         return jsonify(pending_posts), 200
     except Exception as e:
-        print(f"Error in get_pending_posts: {str(e)}")
         return jsonify({"error": "An error occurred while fetching pending posts"}), 500
 
 @app.route('/api/community/posts/<post_id>/approve', methods=['POST'])
@@ -150,13 +167,9 @@ def approve_post(post_id):
             {'$set': {'posts.$.status': 'approved'}}
         )
         if result.modified_count:
-            print(f"Post {post_id} approved successfully")
             return jsonify({"message": "Post approved successfully", "status": "success"}), 200
-        else:
-            print(f"Post {post_id} not found or already approved")
-            return jsonify({"message": "Post not found or already approved", "status": "error"}), 404
+        return jsonify({"message": "Post not found or already approved", "status": "error"}), 404
     except Exception as e:
-        print(f"Error in approve_post: {str(e)}")
         return jsonify({"message": str(e), "status": "error"}), 400
 
 @app.route('/api/community/posts/<post_id>/disapprove', methods=['POST'])
@@ -168,13 +181,9 @@ def disapprove_post(post_id):
             {'$pull': {'posts': {'_id': ObjectId(post_id)}}}
         )
         if result.modified_count:
-            print(f"Post {post_id} deleted successfully")
             return jsonify({"message": "Post deleted successfully", "status": "success"}), 200
-        else:
-            print(f"Post {post_id} not found")
-            return jsonify({"message": "Post not found", "status": "error"}), 404
+        return jsonify({"message": "Post not found", "status": "error"}), 404
     except Exception as e:
-        print(f"Error in disapprove_post: {str(e)}")
         return jsonify({"message": str(e), "status": "error"}), 400
 
 @app.route('/api/community/posts', methods=['POST'])
@@ -194,17 +203,121 @@ def create_community_post():
     }
 
     try:
-        result = community_posts_collection.update_one(
+        community_posts_collection.update_one(
             {'beach_name': beach_name},
             {'$push': {'posts': new_post}},
             upsert=True
         )
-        print(f"New post submitted for {beach_name}")
         return jsonify({"message": "Post submitted for moderation", "status": "success"}), 201
     except Exception as e:
-        print(f"Error in create_community_post: {str(e)}")
         return jsonify({"message": str(e), "status": "error"}), 400
 
+# General discussions routes
+@app.route('/api/general-discussions', methods=['GET'])
+def get_all_general_discussions():
+    try:
+        all_discussions = general_discussions_collection.find_one({}, {'discussions': 1})
+        if all_discussions and 'discussions' in all_discussions:
+            serializable_discussions = convert_document_to_serializable(all_discussions['discussions'])
+            return jsonify(serializable_discussions), 200
+        return jsonify([]), 200
+    except Exception as e:
+        return jsonify({"message": str(e), "status": "error"}), 400
+
+@app.route('/api/general-discussions', methods=['POST'])
+def create_general_discussion():
+    try:
+        data = request.get_json()
+        title = data.get('title')
+        content = data.get('content')
+        category = data.get('category')  # Ensure category is fetched correctly
+        author = data.get('author', 'Anonymous')
+
+        if not title or not content or not category:
+            return jsonify({"message": "Title, category, and content are required", "status": "error"}), 400
+
+        new_discussion = {
+            '_id': ObjectId(),
+            'title': title,
+            'content': content,
+            'author': author,
+            'category': category,  # Include the category field
+            'created_at': datetime.now().isoformat(),
+            'comments': []  # Initialize an empty list of comments
+        }
+
+        general_discussions_collection.update_one(
+            {},
+            {'$push': {'discussions': new_discussion}},
+            upsert=True
+        )
+        serializable_discussion = convert_document_to_serializable(new_discussion)
+        return jsonify(serializable_discussion), 201
+    except Exception as e:
+        return jsonify({"message": str(e), "status": "error"}), 400
+
+@app.route('/api/general-discussions/<discussion_id>/comments', methods=['POST'])
+def add_comment_to_general_discussion(discussion_id):
+    try:
+        if not ObjectId.is_valid(discussion_id):
+            return jsonify({"message": "Invalid discussion ID", "status": "error"}), 400
+
+        data = request.get_json()
+        content = data.get('content')
+        author = data.get('author', 'Anonymous')
+
+        if not content:
+            return jsonify({"message": "Content is required", "status": "error"}), 400
+
+        comment = {
+            '_id': str(ObjectId()),  # Convert ObjectId to string
+            'author': author,
+            'content': content,
+            'created_at': datetime.now().isoformat()
+        }
+
+        result = general_discussions_collection.update_one(
+            {'discussions._id': ObjectId(discussion_id)},
+            {'$push': {'discussions.$.comments': comment}}
+        )
+
+        if result.modified_count > 0:
+            return jsonify(comment), 201  # Return the added comment with the ObjectId as a string
+        else:
+            return jsonify({"message": "Discussion not found", "status": "error"}), 404
+
+    except Exception as e:
+        return jsonify({"message": str(e), "status": "error"}), 400
+
+@app.route('/api/general-discussions/<discussion_id>/comments', methods=['GET'])
+def get_general_discussion_comments(discussion_id):
+    try:
+        discussion = general_discussions_collection.find_one({'discussions._id': ObjectId(discussion_id)}, {'discussions.$': 1})
+        if discussion:
+            comments = discussion['discussions'][0]['comments']
+            serializable_comments = convert_document_to_serializable(comments)
+            return jsonify(serializable_comments), 200
+        return jsonify([]), 404
+    except Exception as e:
+        return jsonify({"message": str(e), "status": "error"}), 400
+
+@app.route('/api/general-discussions/<discussion_id>', methods=['DELETE'])
+@login_required
+def delete_general_discussion(discussion_id):
+    try:
+        result = general_discussions_collection.update_one(
+            {'discussions._id': ObjectId(discussion_id)},
+            {'$pull': {'discussions': {'_id': ObjectId(discussion_id)}}}
+        )
+        if result.modified_count > 0:
+            return jsonify({"message": "Discussion deleted successfully", "status": "success"}), 200
+        else:
+            return jsonify({"message": "Discussion not found", "status": "error"}), 404
+    except Exception as e:
+        return jsonify({"message": str(e), "status": "error"}), 400
+
+# Run the app with both initializations
 if __name__ == '__main__':
-    initialize_community_posts()
+    initialize_general_discussions()  # Initialize the general discussions collection
+    initialize_community_posts()  # Initialize the community posts collection
     app.run(debug=True, port=5000)
