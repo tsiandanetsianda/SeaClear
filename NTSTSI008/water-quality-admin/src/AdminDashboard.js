@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
-import { FileText, MessageSquare, Upload, Droplet, AlertTriangle, LogOut, CheckSquare, XSquare } from 'lucide-react';
+import { FileText, MessageSquare, Upload, Droplet, AlertTriangle, LogOut, CheckSquare, XSquare, Edit2 } from 'lucide-react';
 import axios from 'axios';
+import Select from 'react-select';
+
 
 const AdminDashboard = () => {
   const [user, setUser] = useState(null);
@@ -300,6 +302,8 @@ const UploadContent = () => {
 
 const BeachesContent = () => {
   const [beaches, setBeaches] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchBeaches();
@@ -309,10 +313,26 @@ const BeachesContent = () => {
     try {
       const response = await axios.get('http://localhost:5000/api/beaches');
       setBeaches(response.data);
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching beaches:', error);
+      setError('Failed to fetch beaches. Please try again.');
+      setLoading(false);
     }
   };
+
+  const updateBeachStatus = async (beachName, newStatus) => {
+    try {
+      await axios.put(`http://localhost:5000/api/beaches/${encodeURIComponent(beachName)}`, { status: newStatus });
+      fetchBeaches(); // Refresh the beach list after updating
+    } catch (error) {
+      console.error('Error updating beach status:', error);
+      alert('Failed to update beach status. Please try again.');
+    }
+  };
+
+  if (loading) return <div>Loading beaches...</div>;
+  if (error) return <div className="text-red-500">{error}</div>;
 
   return (
     <div>
@@ -332,13 +352,20 @@ const BeachesContent = () => {
               <tr key={beach.name}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{beach.name}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${beach.is_safe ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                    {beach.is_safe ? 'Safe' : 'Unsafe'}
-                  </span>
+                <Select
+  value={{ label: beach.is_safe, value: beach.is_safe }}
+  onChange={(selectedOption) => updateBeachStatus(beach.name, selectedOption.value)}
+  options={[
+    { value: 'Excellent', label: 'Excellent' },
+    { value: 'Good', label: 'Good' },
+    { value: 'Poor', label: 'Poor' },
+    { value: 'Unknown', label: 'Unknown' }
+  ]}
+/>
+
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(beach.date_sampled).toLocaleDateString()}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button className="text-indigo-600 hover:text-indigo-900">Edit</button>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {new Date(beach.date_sampled).toLocaleDateString()}
                 </td>
               </tr>
             ))}
@@ -347,7 +374,8 @@ const BeachesContent = () => {
       </div>
     </div>
   );
-};
+}
+
 
 const ReportsContent = () => {
   const [reports, setReports] = useState([]);

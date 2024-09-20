@@ -105,11 +105,30 @@ def check_auth():
         return jsonify({"authenticated": True, "user": current_user.id}), 200
     return jsonify({"authenticated": False}), 200
 
-# Beach data routes
 @app.route('/api/beaches', methods=['GET'])
 def get_beaches():
     beaches = list(beach_collection.find({}, {'_id': 0, 'name': 1, 'is_safe': 1, 'date_sampled': 1}))
     return jsonify(beaches)
+
+
+@app.route('/api/beaches/<path:beach_name>', methods=['PUT'])
+def update_beach_status(beach_name):
+    data = request.json
+    new_status = data.get('status')
+    if not new_status:
+        return jsonify({'error': 'Status is required'}), 400
+
+    decoded_beach_name = urllib.parse.unquote(beach_name)
+    result = beach_collection.update_one(
+        {'name': decoded_beach_name},
+        {'$set': {'is_safe': new_status}}
+    )
+
+    if result.modified_count == 0:
+        return jsonify({'error': 'Beach not found or status not updated'}), 404
+
+    return jsonify({'message': 'Beach status updated successfully'}), 200
+
 
 @app.route('/api/beaches/<path:beach_name>')
 def get_beach_data(beach_name):
