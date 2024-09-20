@@ -6,6 +6,7 @@ from pymongo import MongoClient
 from bson import ObjectId
 from datetime import datetime
 import urllib.parse
+import re
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -87,9 +88,9 @@ def get_beaches():
 
 @app.route('/api/beaches/<path:beach_name>')
 def get_beach_data(beach_name):
-    decoded_beach_name = urllib.parse.unquote(beach_name)
+    decoded_beach_name = urllib.parse.unquote(beach_name).replace('-', ' ')
     print(f"Fetching data for beach: {decoded_beach_name}")
-    beach_data = beach_collection.find_one({'name': decoded_beach_name}, {'_id': 0})
+    beach_data = beach_collection.find_one({'name': {'$regex': f'^{re.escape(decoded_beach_name)}$', '$options': 'i'}}, {'_id': 0})
     if beach_data:
         print(f"Beach data found for {decoded_beach_name}")
         return jsonify(beach_data)
