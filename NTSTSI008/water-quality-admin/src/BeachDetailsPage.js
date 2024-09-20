@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
-import { MapPin, Droplet, ThermometerSun, Wind, MessageSquare } from 'lucide-react';
+import { MapPin, Droplet, ThermometerSun, Wind } from 'lucide-react';
 import axios from 'axios';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
@@ -37,26 +37,10 @@ const BeachDetailsPage = () => {
   const [weather, setWeather] = useState(null);
   const mapRef = useRef(null);
 
-  useEffect(() => {
-    console.log('BeachDetailsPage mounted. Beach name:', beachName);
-    console.log('Coordinates:', coordinates);
-    fetchBeachData();
-    fetchCommunityPosts();
-    fetchWeatherData();
-    const intervalId = setInterval(fetchWeatherData, 600000); // Update weather every 10 minutes
-    return () => clearInterval(intervalId);
-  }, [beachName, coordinates]);
-
-  useEffect(() => {
-    if (mapRef.current) {
-      mapRef.current.invalidateSize();
-    }
-  }, [mapRef]);
-
-  const fetchBeachData = async () => {
+  const fetchBeachData = useCallback(async () => {
     console.log('Fetching beach data for:', beachName);
     try {
-      const response = await axios.get(`http://localhost:5000/api/beaches/${beachName}`);
+      const response = await axios.get(`http://localhost:5000/api/beaches/${encodeURIComponent(beachName)}`);
       console.log('Beach data received:', response.data);
       setBeachData(prev => ({ 
         ...prev, 
@@ -68,9 +52,9 @@ const BeachDetailsPage = () => {
     } catch (error) {
       console.error('Error fetching beach data:', error);
     }
-  };
+  }, [beachName, coordinates]);
 
-  const fetchWeatherData = async () => {
+  const fetchWeatherData = useCallback(async () => {
     console.log('Fetching weather data for coordinates:', coordinates);
     try {
       const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${coordinates[0]}&lon=${coordinates[1]}&units=metric&appid=${OPENWEATHER_API_KEY}`);
@@ -79,18 +63,34 @@ const BeachDetailsPage = () => {
     } catch (error) {
       console.error('Error fetching weather data:', error);
     }
-  };
+  }, [coordinates]);
 
-  const fetchCommunityPosts = async () => {
+  const fetchCommunityPosts = useCallback(async () => {
     console.log('Fetching community posts for:', beachName);
     try {
-      const response = await axios.get(`http://localhost:5000/api/community/posts/${beachName}`);
+      const response = await axios.get(`http://localhost:5000/api/community/posts/${encodeURIComponent(beachName)}`);
       console.log('Community posts received:', response.data);
       setCommunityPosts(response.data);
     } catch (error) {
       console.error('Error fetching community posts:', error);
     }
-  };
+  }, [beachName]);
+
+  useEffect(() => {
+    console.log('BeachDetailsPage mounted. Beach name:', beachName);
+    console.log('Coordinates:', coordinates);
+    fetchBeachData();
+    fetchCommunityPosts();
+    fetchWeatherData();
+    const intervalId = setInterval(fetchWeatherData, 600000); // Update weather every 10 minutes
+    return () => clearInterval(intervalId);
+  }, [beachName, coordinates, fetchBeachData, fetchCommunityPosts, fetchWeatherData]);
+
+  useEffect(() => {
+    if (mapRef.current) {
+      mapRef.current.invalidateSize();
+    }
+  }, [mapRef]);
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();

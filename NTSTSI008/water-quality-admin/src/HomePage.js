@@ -1,10 +1,10 @@
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
+import axios from 'axios';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import './HomePage.css';
-
 
 const beachImages = [
   "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=300&fit=crop",
@@ -27,9 +27,7 @@ const beachImages = [
   "https://images.unsplash.com/photo-1515238152791-8216bfdf89a7?w=400&h=300&fit=crop",
   "https://images.unsplash.com/photo-1509233725247-49e657c54213?w=400&h=300&fit=crop",
   "https://images.unsplash.com/photo-1501426026826-31c667bdf23d?w=400&h=300&fit=crop",
-  
 ];
-
 
 const getRandomBeachImage = () => {
   return beachImages[Math.floor(Math.random() * beachImages.length)];
@@ -121,13 +119,25 @@ const HomePage = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [map, setMap] = useState(null);
   const [filteredBeaches, setFilteredBeaches] = useState(beaches);
+  const [beachData, setBeachData] = useState([]);
   const mapContainer = useRef(null);
 
   useEffect(() => {
     initMap();
+    fetchBeachData();
   }, []);
 
-  const initMap = () => {
+  const fetchBeachData = useCallback(async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/beaches');
+      console.log('Fetched beach data:', response.data);
+      setBeachData(response.data);
+    } catch (error) {
+      console.error('Error fetching beach data:', error);
+    }
+  }, []);
+  
+  const initMap = useCallback(() => {
     const newMap = new maplibregl.Map({
       container: mapContainer.current,
       style: 'https://demotiles.maplibre.org/style.json',
@@ -165,14 +175,14 @@ const HomePage = () => {
     });
   
     setMap(newMap);
-  };
+  }, []);
 
   const handleBeachSelection = useCallback((beach) => {
     const beachNameForUrl = beach.name.toLowerCase().replace(/\s+/g, '-');
     navigate(`/beach/${beachNameForUrl}`, { state: { coordinates: [beach.lat, beach.lng] } });
   }, [navigate]);
 
-  const handleSearchInput = (e) => {
+  const handleSearchInput = useCallback((e) => {
     const input = e.target.value.toLowerCase();
     setSearchInput(input);
 
@@ -186,35 +196,25 @@ const HomePage = () => {
       setSearchResults([]);
       setFilteredBeaches(beaches); // Reset to all beaches when search is empty
     }
-  };
+  }, []);
 
-  const handleAdminClick = () => {
-    navigate('/login');
-  };
-
-  const handleLearnMoreClick = () => {
+  const handleLearnMoreClick = useCallback(() => {
     navigate('/education');
-  };
-
-  const getRandomBeachImage = () => {
-    return beachImages[Math.floor(Math.random() * beachImages.length)];
-  };
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-400 to-blue-600">
       <header className="bg-blue-500 text-white">
         <nav className="container mx-auto px-6 py-3">
           <div className="flex justify-between items-center">
-          <Link to="/" className="text-white text-2xl font-bold">SeaClear</Link>
+            <Link to="/" className="text-white text-2xl font-bold">SeaClear</Link>
           </div>
-            <div className=" flex justify-end space-x-4 mt-2">
-              <Link to="/education" className="text-white hover:text-blue-200">Learn_More</Link>
-              <Link to="/about" className="text-white hover:text-blue-200">About</Link>
-              <Link to="/community" className="text-white hover:text-blue-200">Community</Link> {/* New community tab */}
-              <Link to="/login" className="bg-white text-blue-500 px-2 py-0 rounded-full hover:bg-blue-100 transition duration-300">Admin Login</Link>
-            <div/>
+          <div className="flex justify-end space-x-4 mt-2">
+            <Link to="/education" className="text-white hover:text-blue-200">Learn More</Link>
+            <Link to="/about" className="text-white hover:text-blue-200">About</Link>
+            <Link to="/community" className="text-white hover:text-blue-200">Community</Link>
+            <Link to="/login" className="bg-white text-blue-500 px-2 py-0 rounded-full hover:bg-blue-100 transition duration-300">Admin Login</Link>
           </div>
-          
         </nav>
       </header>
 
@@ -262,21 +262,25 @@ const HomePage = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredBeaches.map((beach, index) => (
-            <BeachCard 
-            key={index} 
-            beach={beach} 
-            onSelect={handleBeachSelection}
-            image={getRandomBeachImage()}
-          />
-          ))}
+          {filteredBeaches.map((beach, index) => {
+            const beachInfo = beachData.find(b => b.name === beach.name) || {};
+            return (
+              <BeachCard 
+                key={index} 
+                beach={beach} 
+                onSelect={handleBeachSelection}
+                image={getRandomBeachImage()}
+                waterQuality={beachInfo.is_safe}
+              />
+            );
+          })}
         </div>
       </main>
     </div>
   );
 };
 
-const BeachCard = ({ beach, onSelect, image }) => (
+const BeachCard = ({ beach, onSelect, image, waterQuality }) => (
   <div className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer" onClick={() => onSelect(beach)}>
     <div className="w-full h-48 bg-gray-200 overflow-hidden">
       <img 
@@ -292,23 +296,42 @@ const BeachCard = ({ beach, onSelect, image }) => (
     <div className="p-4">
       <h3 className="text-xl font-semibold mb-2">{beach.name}</h3>
       <p className="text-sm text-gray-600 mb-2">{beach.address}</p>
-      <span className={`status ${beach.is_safe === 'Safe' ? "text-green-500" : beach.is_safe === 'Not Safe' ? "text-red-500" : "text-yellow-500"}`}>
-        {beach.is_safe}
+      <span className={`status ${getWaterQualityColor(waterQuality)}`}>
+        {waterQuality || 'Unknown'}
       </span>
       <p className="mt-2 text-sm text-gray-600">
-        {beach.is_safe === 'Safe' 
-          ? "This beach is safe to swim in. The water quality is not harmful to your health."
-          : beach.is_safe === 'Not Safe'
-          ? "This beach is unsafe to swim in due to pollution. The water quality is affected."
-          : "The safety status of this beach is unknown."}
+        {getWaterQualityDescription(waterQuality)}
       </p>
-      {beach.date_sampled && (
-        <p className="mt-2 text-xs text-gray-500">
-          Last sampled: {new Date(beach.date_sampled).toLocaleDateString()}
-        </p>
-      )}
     </div>
   </div>
 );
+
+const getWaterQualityColor = (quality) => {
+  switch (quality) {
+    case 'Excellent':
+    case 'Good':
+      return 'text-green-500';
+    case 'Sufficient':
+      return 'text-yellow-500';
+    case 'Poor':
+      return 'text-red-500';
+    default:
+      return 'text-gray-500';
+  }
+};
+
+const getWaterQualityDescription = (quality) => {
+  switch (quality) {
+    case 'Excellent':
+    case 'Good':
+      return 'This beach is safe to swim in. The water quality is good for your health.';
+    case 'Sufficient':
+      return 'This beach is generally safe, but caution is advised. The water quality is acceptable.';
+    case 'Poor':
+      return 'This beach is unsafe to swim in due to pollution. The water quality is affected.';
+    default:
+      return 'Water quality information is not available for this beach.';
+  }
+};
 
 export default HomePage;
