@@ -1,10 +1,21 @@
 import axios from 'axios';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { Search } from 'lucide-react';
-import maplibregl from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import { Link, useNavigate } from 'react-router-dom';
 import './HomePage.css';
+
+// Custom icon for Leaflet markers
+const beachIcon = new L.Icon({
+  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
 
 const beachImages = [
   "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=300&fit=crop",
@@ -117,13 +128,10 @@ const HomePage = () => {
   const navigate = useNavigate();
   const [searchInput, setSearchInput] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-  const [map, setMap] = useState(null);
   const [filteredBeaches, setFilteredBeaches] = useState(beaches);
   const [beachData, setBeachData] = useState([]);
-  const mapContainer = useRef(null);
 
   useEffect(() => {
-    initMap();
     fetchBeachData();
   }, []);
 
@@ -135,46 +143,6 @@ const HomePage = () => {
     } catch (error) {
       console.error('Error fetching beach data:', error);
     }
-  }, []);
-  
-  const initMap = useCallback(() => {
-    const newMap = new maplibregl.Map({
-      container: mapContainer.current,
-      style: 'https://demotiles.maplibre.org/style.json',
-      center: [18.4241, -33.9249], // Cape Town coordinates
-      zoom: 10,
-    });
-  
-    newMap.on('load', () => {
-      beaches.forEach((beach) => {
-        const popup = new maplibregl.Popup({
-          closeButton: false,
-          closeOnClick: false,
-          offset: 15,
-          className: 'beach-popup'
-        }).setHTML(`<div>${beach.name}</div>`);
-  
-        const marker = new maplibregl.Marker({
-          color: '#37b8ca'
-        })
-          .setLngLat([beach.lng, beach.lat])
-          .addTo(newMap);
-  
-        const markerElement = marker.getElement();
-        
-        markerElement.addEventListener('mouseenter', () => {
-          popup.setLngLat([beach.lng, beach.lat]).addTo(newMap);
-        });
-  
-        markerElement.addEventListener('mouseleave', () => {
-          popup.remove();
-        });
-  
-        markerElement.addEventListener('click', () => handleBeachSelection(beach));
-      });
-    });
-  
-    setMap(newMap);
   }, []);
 
   const handleBeachSelection = useCallback((beach) => {
@@ -254,11 +222,31 @@ const HomePage = () => {
         <div className="mb-12">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold text-white">Beaches in Cape Town</h2>
-            {/* <button onClick={handleLearnMoreClick} className="bg-white text-blue-500 px-4 py-2 rounded-full hover:bg-blue-100 transition duration-300">
-              Learn More
-            </button> */}
           </div>
-          <div ref={mapContainer} className="w-full h-96 rounded-lg overflow-hidden"></div>
+          <div className="w-full h-96 rounded-lg overflow-hidden">
+            <MapContainer center={[-33.9249, 18.4241]} zoom={10} style={{ height: '100%', width: '100%' }}>
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              />
+              {filteredBeaches.map((beach) => (
+                <Marker
+                  key={beach.name}
+                  position={[beach.lat, beach.lng]}
+                  icon={beachIcon}
+                  eventHandlers={{
+                    click: () => {
+                      handleBeachSelection(beach);
+                    },
+                  }}
+                >
+                  <Popup>
+                    <div>{beach.name}</div>
+                  </Popup>
+                </Marker>
+              ))}
+            </MapContainer>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
