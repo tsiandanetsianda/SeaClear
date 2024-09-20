@@ -26,16 +26,20 @@ const BeachDetailsPage = () => {
   const [beachData, setBeachData] = useState({
     name: beachName.replace(/-/g, ' '),
     location: 'Cape Town, South Africa',
-    waterQuality: 'Good',
+    waterQuality: 'Unknown',
+    values: [],
+    date_sampled: null,
     temperature: '22°C',
     windSpeed: '15 km/h',
     description: 'A beautiful sandy beach with crystal clear waters, perfect for swimming and sunbathing.',
     coordinates: coordinates,
   });
   const [weather, setWeather] = useState(null);
-  const mapRef = useRef(null)
+  const mapRef = useRef(null);
 
   useEffect(() => {
+    console.log('BeachDetailsPage mounted. Beach name:', beachName);
+    console.log('Coordinates:', coordinates);
     fetchBeachData();
     fetchCommunityPosts();
     fetchWeatherData();
@@ -50,17 +54,27 @@ const BeachDetailsPage = () => {
   }, [mapRef]);
 
   const fetchBeachData = async () => {
+    console.log('Fetching beach data for:', beachName);
     try {
       const response = await axios.get(`http://localhost:5000/api/beaches/${beachName}`);
-      setBeachData(prev => ({ ...prev, ...response.data, coordinates }));
+      console.log('Beach data received:', response.data);
+      setBeachData(prev => ({ 
+        ...prev, 
+        ...response.data, 
+        coordinates,
+        waterQuality: response.data.is_safe,
+      }));
+      console.log('Beach data state updated');
     } catch (error) {
       console.error('Error fetching beach data:', error);
     }
   };
 
   const fetchWeatherData = async () => {
+    console.log('Fetching weather data for coordinates:', coordinates);
     try {
       const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${coordinates[0]}&lon=${coordinates[1]}&units=metric&appid=${OPENWEATHER_API_KEY}`);
+      console.log('Weather data received:', response.data);
       setWeather(response.data);
     } catch (error) {
       console.error('Error fetching weather data:', error);
@@ -68,8 +82,10 @@ const BeachDetailsPage = () => {
   };
 
   const fetchCommunityPosts = async () => {
+    console.log('Fetching community posts for:', beachName);
     try {
       const response = await axios.get(`http://localhost:5000/api/community/posts/${beachName}`);
+      console.log('Community posts received:', response.data);
       setCommunityPosts(response.data);
     } catch (error) {
       console.error('Error fetching community posts:', error);
@@ -78,14 +94,15 @@ const BeachDetailsPage = () => {
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
+    console.log('Submitting comment:', comment);
     try {
       await axios.post('http://localhost:5000/api/community/posts', {
-        beachName: beachName,  // Use the beachName from the URL params
+        beachName: beachName,
         content: comment,
       });
+      console.log('Comment submitted successfully');
       setComment('');
       alert('Your post has been submitted for moderation.');
-      // Optionally, refresh the posts after submission
       fetchCommunityPosts();
     } catch (error) {
       console.error('Error submitting comment:', error);
@@ -101,6 +118,8 @@ const BeachDetailsPage = () => {
     popupAnchor: [1, -34],
     shadowSize: [41, 41]
   });
+
+  console.log('Rendering BeachDetailsPage. Current beach data:', beachData);
 
   return (
     <div className="beach-details">
@@ -159,6 +178,23 @@ const BeachDetailsPage = () => {
           )}
         </div>
 
+        <div className="beach-details__water-quality">
+          <h2 className="beach-details__section-title">Water Quality Information</h2>
+          <p>Last sampled: {beachData.date_sampled ? new Date(beachData.date_sampled).toLocaleDateString() : 'Unknown'}</p>
+          <p>Status: <span className={getWaterQualityColor(beachData.waterQuality)}>{beachData.waterQuality}</span></p>
+          <p>{getWaterQualityDescription(beachData.waterQuality)}</p>
+          {beachData.values && beachData.values.length > 0 && (
+            <div>
+              <h3>Recent Measurements:</h3>
+              <ul>
+                {beachData.values.map((value, index) => (
+                  <li key={index}>Sample {index + 1}: {value} cfu/100ml</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+
         <div className="beach-details__description">
           <h2 className="beach-details__description-title">Description</h2>
           <p>{beachData.description}</p>
@@ -199,6 +235,34 @@ const BeachDetailsPage = () => {
       </main>
     </div>
   );
+};
+
+const getWaterQualityColor = (quality) => {
+  switch (quality) {
+    case 'Excellent':
+    case 'Good':
+      return 'text-green-500';
+    case 'Sufficient':
+      return 'text-yellow-500';
+    case 'Poor':
+      return 'text-red-500';
+    default:
+      return 'text-gray-500';
+  }
+};
+
+const getWaterQualityDescription = (quality) => {
+  switch (quality) {
+    case 'Excellent':
+    case 'Good':
+      return 'This beach is safe to swim in. The water quality is good for your health.';
+    case 'Sufficient':
+      return 'This beach is generally safe, but caution is advised. The water quality is acceptable.';
+    case 'Poor':
+      return 'This beach is unsafe to swim in due to pollution. The water quality is affected.';
+    default:
+      return 'Water quality information is not available for this beach.';
+  }
 };
 
 export default BeachDetailsPage;

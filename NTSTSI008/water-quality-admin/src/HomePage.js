@@ -284,7 +284,7 @@ const BeachCard = ({ beach, onSelect, image }) => (
         alt={beach.name} 
         className="w-full h-full object-cover"
         onError={(e) => {
-          e.target.onerror = null; // Prevent infinite loop
+          e.target.onerror = null;
           e.target.src = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=300&fit=crop';
         }}
       />
@@ -292,14 +292,21 @@ const BeachCard = ({ beach, onSelect, image }) => (
     <div className="p-4">
       <h3 className="text-xl font-semibold mb-2">{beach.name}</h3>
       <p className="text-sm text-gray-600 mb-2">{beach.address}</p>
-      <span className={`status ${beach.name.includes("Clifton") ? "text-red-500" : "text-green-500"}`}>
-        {beach.name.includes("Clifton") ? "UNSAFE" : "SAFE"}
+      <span className={`status ${beach.is_safe === 'Safe' ? "text-green-500" : beach.is_safe === 'Not Safe' ? "text-red-500" : "text-yellow-500"}`}>
+        {beach.is_safe}
       </span>
       <p className="mt-2 text-sm text-gray-600">
-        {beach.name.includes("Clifton") 
+        {beach.is_safe === 'Safe' 
+          ? "This beach is safe to swim in. The water quality is not harmful to your health."
+          : beach.is_safe === 'Not Safe'
           ? "This beach is unsafe to swim in due to pollution. The water quality is affected."
-          : "This beach is safe to swim in. The water quality is not harmful for your health."}
+          : "The safety status of this beach is unknown."}
       </p>
+      {beach.date_sampled && (
+        <p className="mt-2 text-xs text-gray-500">
+          Last sampled: {new Date(beach.date_sampled).toLocaleDateString()}
+        </p>
+      )}
     </div>
   </div>
 );

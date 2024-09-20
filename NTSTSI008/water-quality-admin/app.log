@@ -1,0 +1,5 @@
+2024-09-20 11:03:07,540 - DEBUG - {"clientId": {"$oid": "66ed3a4b6c6470153276a17a"}, "message": "Connection pool created", "serverHost": "localhost", "serverPort": 27017}
+2024-09-20 11:03:07,543 - INFO - Successfully connected to MongoDB
+2024-09-20 11:03:07,547 - DEBUG - {"clientId": {"$oid": "66ed3a4b6c6470153276a17a"}, "message": "Connection pool ready", "serverHost": "localhost", "serverPort": 27017}
+2024-09-20 11:03:07,569 - WARNING -  * Debugger is active!
+2024-09-20 11:03:07,570 - INFO -  * Debugger PIN: 661-085-434
