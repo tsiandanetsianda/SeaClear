@@ -1,114 +1,225 @@
+import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import './CommunityPage.css';
+
+axios.defaults.baseURL = 'http://localhost:5000';  // Ensure baseURL is set to your backend server
 
 const CommunityPage = () => {
-  const [posts, setPosts] = useState([
-    {
-      id: 1,
-      content: "This is a sample post from John Doe",
-      author: "John Doe",
-      createdAt: "2023-02-20 14:30:00",
-    },
-    {
-      id: 2,
-      content: "Another sample post from Jane Smith",
-      author: "Jane Smith",
-      createdAt: "2023-02-21 10:45:00",
-    },
-    {
-      id: 3,
-      content: "This is a longer sample post from Bob Johnson. It has multiple sentences and will wrap to the next line.",
-      author: "Bob Johnson",
-      createdAt: "2023-02-22 12:00:00",
-    },
-  ]);
-  const [newPost, setNewPost] = useState('');
-  const [loading, setLoading] = useState(false);
-  const location = useLocation();
+  const [discussions, setDiscussions] = useState([]);
+  const [filteredDiscussions, setFilteredDiscussions] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [newDiscussion, setNewDiscussion] = useState({ title: '', description: '', category: 'Beach Experiences' });
+  const [comments, setComments] = useState({});
+  const [newComment, setNewComment] = useState(''); // Controlled state for new comment input
+  const [showCommentBox, setShowCommentBox] = useState(null); // State to control which comment box is visible
+  const [showDiscussionForm, setShowDiscussionForm] = useState(false); // State to control form visibility
 
   useEffect(() => {
-    fetchPosts();
+    fetchDiscussions();
   }, []);
 
-  const fetchPosts = async () => {
-    setLoading(true);
+  useEffect(() => {
+    filterDiscussions();
+  }, [discussions, searchQuery, selectedCategory]);
+
+  const fetchDiscussions = async () => {
     try {
-      const response = await fetch('/api/community/posts');
-      const data = await response.json();
-      setPosts(data);
-      setLoading(false);
+      const response = await axios.get('/api/community/posts');
+      setDiscussions(response.data);
     } catch (error) {
-      console.error(error);
-      setLoading(false);
+      console.error('Error fetching discussions:', error);
     }
   };
 
-  const handleNewPost = async (e) => {
-    e.preventDefault();
+  const filterDiscussions = () => {
+    let updatedDiscussions = discussions;
+
+    if (searchQuery) {
+      updatedDiscussions = updatedDiscussions.filter(discussion =>
+        discussion.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        discussion.content.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    if (selectedCategory !== 'All') {
+      updatedDiscussions = updatedDiscussions.filter(discussion =>
+        discussion.category === selectedCategory
+      );
+    }
+
+    setFilteredDiscussions(updatedDiscussions);
+  };
+
+  const handleNewDiscussionChange = (e) => {
+    const { name, value } = e.target;
+    setNewDiscussion({ ...newDiscussion, [name]: value });
+  };
+
+  const handleAddDiscussion = async () => {
+    if (newDiscussion.title.trim() === '' || newDiscussion.description.trim() === '') {
+        alert('Please fill in all fields');
+        return;
+    }
+
     try {
-      const response = await fetch('/api/community/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: newPost, author: 'Anonymous' }),
-      });
-      const data = await response.json();
-      setPosts([...posts, data]);
-      setNewPost('');
+        const payload = {
+            title: newDiscussion.title,
+            content: newDiscussion.description,
+            category: newDiscussion.category,
+            author: 'Anonymous'
+        };
+
+        console.log("Payload being sent:", payload);  // Debugging statement
+
+        const response = await axios.post('/api/community/posts', payload);
+        setDiscussions([...discussions, response.data]);
+        setNewDiscussion({ title: '', description: '', category: 'Beach Experiences' });
+        setShowDiscussionForm(false);  // Hide form after adding discussion
+        fetchDiscussions();  // Fetch discussions again to update the list
     } catch (error) {
-      console.error(error);
+        console.error('Error adding discussion:', error);
+        alert('Failed to add discussion');
+    }
+  };
+
+  const fetchComments = async (postId) => {
+    try {
+      const response = await axios.get(`/api/community/posts/${postId}/comments`);
+      setComments({ ...comments, [postId]: response.data });
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+    }
+  };
+
+  const handleAddComment = async (postId) => {
+    if (newComment.trim() === '') {
+      alert('Comment cannot be empty');
+      return;
+    }
+
+    try {
+      const payload = {
+        content: newComment,
+        author: 'Anonymous'
+      };
+
+      const response = await axios.post(`/api/community/posts/${postId}/comments`, payload);
+      setNewComment(''); // Reset the comment input
+      setShowCommentBox(null); // Hide comment box after submission
+      fetchComments(postId);  // Fetch updated comments
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      alert('Failed to add comment');
     }
   };
 
   return (
-    <div className="min-h-screen bg-cover bg-center" style={{ backgroundImage: `url('https://picsum.photos/2000/1000')` }}>
-      <header className="bg-blue-500 text-white">
-        <nav className="container mx-auto px-6 py-3">
-          <div className="flex justify-between items-center">
-            
-            <Link to="/" className="text-white hover:text-blue-200">Back to Home</Link>
-          </div>
-        </nav>
-      </header>
-      <main className="container mx-auto px-6 py-3">
-        <h1 className="text-4xl font-bold font-serif text-shadow-md text-gradient-to-r from-blue-500 to-purple-500">
-          Community Discussion
-        </h1>
-        <p className="text-lg text-white-600 font-sans">Join the conversation and connect with other SeaClear enthusiasts!</p>
-        <p className="text-lg text-white-600 font-sans">Share your thoughts, ask questions, and get feedback from the community.</p>
-        {loading ? (
-          <p>Loading...</p>
-        ) : (
-          <div>
-            <form onSubmit={handleNewPost}>
-              <textarea
-                value={newPost}
-                onChange={(e) => setNewPost(e.target.value)}
-                placeholder="Share your thoughts..."
-                className="w-full p-2 pl-10 text-sm text-gray-700 font-mono"
-              />
-              <button
-                type="submit"
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              >
-                Post
+    <div className="community-page">
+      <div className="community-header">
+        <h1>Community Discussions</h1>
+        <p>Share your beach experiences and join the conversation about water quality.</p>
+        <div className="community-controls">
+          <input
+            type="text"
+            className="search-bar"
+            placeholder="Search discussions..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <select
+            className="category-select"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+          >
+            <option value="All">All Categories</option>
+            <option value="Beach Experiences">Beach Experiences</option>
+            <option value="Water Quality Awareness">Water Quality Awareness</option>
+            <option value="Beach Events and Cleanups">Beach Events and Cleanups</option>
+          </select>
+          <button className="button" onClick={() => setShowDiscussionForm(!showDiscussionForm)}>
+            {showDiscussionForm ? 'Cancel' : 'Start a New Discussion'}
+          </button>
+        </div>
+      </div>
+
+      {/* Conditionally Render the New Discussion Form */}
+      {showDiscussionForm && (
+        <div className="new-discussion-form">
+          <h3>Add a New Discussion</h3>
+          <input
+            type="text"
+            name="title"
+            placeholder="Discussion Title"
+            value={newDiscussion.title}
+            onChange={handleNewDiscussionChange}
+          />
+          <textarea
+            name="description"
+            placeholder="Discussion Description"
+            value={newDiscussion.description}
+            onChange={handleNewDiscussionChange}
+          />
+          <select
+            name="category"
+            value={newDiscussion.category}
+            onChange={handleNewDiscussionChange}
+          >
+            <option value="Beach Experiences">Beach Experiences</option>
+            <option value="Water Quality Awareness">Water Quality Awareness</option>
+            <option value="Beach Events and Cleanups">Beach Events and Cleanups</option>
+          </select>
+          <button className="button" onClick={handleAddDiscussion}>Add Discussion</button>
+        </div>
+      )}
+
+      <div className="discussion-list">
+        {filteredDiscussions.length > 0 ? (
+          filteredDiscussions.map(discussion => (
+            <div key={discussion._id} className="discussion-card">
+              <h2>{discussion.title || "Discussion"}</h2> {/* Display Title */}
+              <p className="discussion-category">Category: {discussion.category}</p> {/* Display Category */}
+              <p>{discussion.content}</p>
+              <div className="discussion-info">
+                <span>Author: {discussion.author}</span>
+                <span>Time Posted: {new Date(discussion.created_at).toLocaleString()}</span>
+              </div>
+              <button onClick={() => {
+                setShowCommentBox(discussion._id); // Show the comment box for this discussion
+                fetchComments(discussion._id); // Fetch comments when the button is clicked
+              }}>
+                View Comments
               </button>
-            </form>
-            <ul className="mt-4">
-              {posts.map((post, index) => (
-                <li
-                  key={post.id}
-                  className={`mb-4 p-4 rounded-lg ${index % 2 === 0 ? 'bg-gray-100' : 'bg-gray-200'}`}
-                >
-                  <p className="font-serif">{post.content}</p>
-                  <small className="font-sans">
-                    Posted by {post.author} on {post.createdAt}
-                  </small>
-                </li>
-              ))}
-            </ul>
-          </div>
+
+              {/* Display comments for the selected discussion */}
+              {comments[discussion._id] && (
+                <div className="comments-section">
+                  {comments[discussion._id].map((comment) => (
+                    <div key={comment._id} className="comment">
+                      <p>{comment.content}</p>
+                      <span>By {comment.author} on {new Date(comment.created_at).toLocaleString()}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Conditionally render the comment textbox when the button is clicked */}
+              {showCommentBox === discussion._id && (
+                <div className="comment-box">
+                  <textarea
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder="Add a comment..."
+                  />
+                  <button onClick={() => handleAddComment(discussion._id)}>Add Comment</button>
+                </div>
+              )}
+            </div>
+          ))
+        ) : (
+          <p>No discussions found.</p>
         )}
-      </main>
+      </div>
     </div>
   );
 };

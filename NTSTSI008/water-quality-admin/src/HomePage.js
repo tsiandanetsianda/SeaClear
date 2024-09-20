@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import './HomePage.css';
 
 
@@ -205,13 +205,16 @@ const HomePage = () => {
       <header className="bg-blue-500 text-white">
         <nav className="container mx-auto px-6 py-3">
           <div className="flex justify-between items-center">
-            <div className="flex-1"> {/* This will take up all available space on the left */}
-              <Link to="/" className="text-white text-2xl font-bold">SeaClear</Link>
-            </div>
-            <div className="flex-1 flex justify-end"> {/* This will push the button to the far right */}
-              <button onClick={handleAdminClick} className="bg-white text-blue-500 px-4 py-2 rounded-full hover:bg-blue-100 transition duration-300">Admin Login</button>
-            </div>
+          <Link to="/" className="text-white text-2xl font-bold">SeaClear</Link>
           </div>
+            <div className=" flex justify-end space-x-4 mt-2">
+              <Link to="/education" className="text-white hover:text-blue-200">Learn_More</Link>
+              <Link to="/about" className="text-white hover:text-blue-200">About</Link>
+              <Link to="/community" className="text-white hover:text-blue-200">Community</Link> {/* New community tab */}
+              <Link to="/login" className="bg-white text-blue-500 px-2 py-0 rounded-full hover:bg-blue-100 transition duration-300">Admin Login</Link>
+            <div/>
+          </div>
+          
         </nav>
       </header>
 
