@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, Link, useLocation } from 'react-router-dom';
-import { MapPin, Droplet, ThermometerSun, Wind } from 'lucide-react';
 import axios from 'axios';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { Droplet, MapPin, ThermometerSun, Wind } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import './BeachDetails.css';
 
 const OPENWEATHER_API_KEY = 'cd605f37629117f007b32d581e8f19af';
@@ -18,9 +18,9 @@ function MapUpdater({ center }) {
 }
 
 const BeachDetailsPage = () => {
-  const { beachName } = useParams(); // Get the beach name from the URL params
-  const location = useLocation(); // Get location state if available
-  const coordinates = location.state?.coordinates || [-34.1126, 18.4662]; // Set default coordinates if not provided
+  const { beachName } = useParams();
+  const location = useLocation();
+  const coordinates = location.state?.coordinates || [-34.1126, 18.4662];
   
   const [beachData, setBeachData] = useState({
     name: beachName?.replace(/-/g, ' ') || '',
@@ -34,13 +34,11 @@ const BeachDetailsPage = () => {
     coordinates: coordinates,
   });
   const [weather, setWeather] = useState(null);
-  const [comment, setComment] = useState(''); // State for comment input
-  const [communityPosts, setCommunityPosts] = useState([]); // State for community posts
+  const [comment, setComment] = useState('');
+  const [communityPosts, setCommunityPosts] = useState([]);
   const mapRef = useRef(null);
 
-  // Define the fetchBeachData function outside useEffect so it can be used later
   const fetchBeachData = async () => {
-    console.log('Fetching beach data for:', beachName);
     try {
       const response = await axios.get(`http://localhost:5000/api/beaches/${encodeURIComponent(beachName)}`);
       setBeachData((prev) => ({
@@ -55,10 +53,8 @@ const BeachDetailsPage = () => {
   };
 
   const fetchWeatherData = useCallback(async () => {
-    console.log('Fetching weather data for coordinates:', coordinates);
     try {
       const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${coordinates[0]}&lon=${coordinates[1]}&units=metric&appid=${OPENWEATHER_API_KEY}`);
-      console.log('Weather data received:', response.data);
       setWeather(response.data);
     } catch (error) {
       console.error('Error fetching weather data:', error);
@@ -66,10 +62,8 @@ const BeachDetailsPage = () => {
   }, [coordinates]);
 
   const fetchCommunityPosts = useCallback(async () => {
-    console.log('Fetching community posts for:', beachName);
     try {
       const response = await axios.get(`http://localhost:5000/api/community/posts/${encodeURIComponent(beachName)}`);
-      console.log('Community posts received:', response.data);
       setCommunityPosts(response.data);
     } catch (error) {
       console.error('Error fetching community posts:', error);
@@ -77,14 +71,12 @@ const BeachDetailsPage = () => {
   }, [beachName]);
 
   useEffect(() => {
-    console.log('BeachDetailsPage mounted. Beach name:', beachName);
-    console.log('Coordinates:', coordinates);
     fetchBeachData();
     fetchCommunityPosts();
     fetchWeatherData();
-    const intervalId = setInterval(fetchWeatherData, 600000); // Update weather every 10 minutes
+    const intervalId = setInterval(fetchWeatherData, 600000);
     return () => clearInterval(intervalId);
-  }, [beachName, coordinates, fetchBeachData, fetchCommunityPosts, fetchWeatherData]);
+  }, [beachName, coordinates, fetchWeatherData, fetchCommunityPosts]);
 
   useEffect(() => {
     if (mapRef.current) {
@@ -94,14 +86,12 @@ const BeachDetailsPage = () => {
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
-    console.log('Submitting comment:', comment);
     try {
       await axios.post('http://localhost:5000/api/community/posts', {
         beachName: beachName,
         content: comment,
       });
-      console.log('Comment submitted successfully');
-      setComment(''); // Clear the comment input after successful submission
+      setComment('');
       alert('Your post has been submitted for moderation.');
       fetchCommunityPosts();
     } catch (error) {
@@ -119,69 +109,90 @@ const BeachDetailsPage = () => {
     shadowSize: [41, 41]
   });
 
-  console.log('Rendering BeachDetailsPage. Current beach data:', beachData);
+  const getQualityClass = (quality) => {
+    switch (quality) {
+      case 'Excellent':
+        return 'quality-excellent';
+      case 'Good':
+        return 'quality-good';
+      case 'Sufficient':
+        return 'quality-sufficient';
+      case 'Poor':
+        return 'quality-poor';
+      default:
+        return 'quality-unknown';
+    }
+  };
 
   return (
     <div className="beach-details">
       <header className="beach-details__header">
         <Link to="/" className="beach-details__back-button">← Back to Home</Link>
-        <h1 className="beach-details__title">{beachData.name}</h1>
       </header>
 
-      <main className="beach-details__content">
-        <div className="beach-details__map-container">
-          <MapContainer 
-            center={coordinates} 
-            zoom={13} 
-            style={{ height: '100%', width: '100%' }}
-            ref={mapRef}
-          >
-            <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            />
-            <Marker position={coordinates} icon={customIcon}>
-              <Popup>
-                <strong>{beachData.name}</strong><br />
-                {weather && (
-                  <>
-                    Temperature: {Math.round(weather.main.temp)}°C<br />
-                    Wind: {Math.round(weather.wind.speed * 3.6)} km/h
-                  </>
-                )}
-              </Popup>
-            </Marker>
-            <MapUpdater center={coordinates} />
-          </MapContainer>
-        </div>
+      {/* Centered Beach Name */}
+      <div className="beach-details__name">
+        <h1>{beachData.name}</h1>
+      </div>
 
-        <div className="beach-details__info">
-          <div className="beach-details__info-item">
-            <MapPin className="beach-details__info-icon" />
-            <span>{beachData.location}</span>
+      <main className="beach-details__content">
+        <div className="beach-details__map-info">
+          <div className="beach-details__map-container">
+            <MapContainer 
+              center={coordinates} 
+              zoom={13} 
+              style={{ height: '300px', width: '100%' }}
+              ref={mapRef}
+            >
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              />
+              <Marker position={coordinates} icon={customIcon}>
+                <Popup>
+                  <strong>{beachData.name}</strong><br />
+                  {weather && (
+                    <>
+                      Temperature: {Math.round(weather.main.temp)}°C<br />
+                      Wind: {Math.round(weather.wind.speed * 3.6)} km/h
+                    </>
+                  )}
+                </Popup>
+              </Marker>
+              <MapUpdater center={coordinates} />
+            </MapContainer>
           </div>
-          <div className="beach-details__info-item">
-            <Droplet className="beach-details__info-icon" />
-            <span>Water Quality: {beachData.waterQuality || 'Unknown'}</span>
+
+          <div className="beach-details__weather">
+            <div className="beach-details__info-item">
+              <MapPin className="beach-details__info-icon" />
+              <span className="beach-details__info-text">{beachData.location}</span>
+            </div>
+            <div className="beach-details__info-item">
+              <Droplet className="beach-details__info-icon" />
+              <span className="beach-details__info-text">Water Quality: {beachData.waterQuality || 'Unknown'}</span>
+            </div>
+            {weather && (
+              <>
+                <div className="beach-details__info-item">
+                  <ThermometerSun className="beach-details__info-icon" />
+                  <span className="beach-details__info-text">Temperature: {Math.round(weather.main.temp)}°C</span>
+                </div>
+                <div className="beach-details__info-item">
+                  <Wind className="beach-details__info-icon" />
+                  <span className="beach-details__info-text">Wind: {Math.round(weather.wind.speed * 3.6)} km/h</span>
+                </div>
+              </>
+            )}
           </div>
-          {weather && (
-            <>
-              <div className="beach-details__info-item">
-                <ThermometerSun className="beach-details__info-icon" />
-                <span>Temperature: {Math.round(weather.main.temp)}°C</span>
-              </div>
-              <div className="beach-details__info-item">
-                <Wind className="beach-details__info-icon" />
-                <span>Wind: {Math.round(weather.wind.speed * 3.6)} km/h</span>
-              </div>
-            </>
-          )}
         </div>
 
         <div className="beach-details__water-quality">
           <h2 className="beach-details__section-title">Water Quality Information</h2>
           <p>Last sampled: {beachData.date_sampled ? new Date(beachData.date_sampled).toLocaleDateString() : 'Unknown'}</p>
-          <p>Status: <span className={getWaterQualityColor(beachData.waterQuality)}>{beachData.waterQuality}</span></p>
+          <p className={`beach-details__water-quality-status ${getQualityClass(beachData.waterQuality)}`}>
+            Status: {beachData.waterQuality}
+          </p>
           <p>{getWaterQualityDescription(beachData.waterQuality)}</p>
           {beachData.values && beachData.values.length > 0 && (
             <div>
@@ -235,20 +246,6 @@ const BeachDetailsPage = () => {
       </main>
     </div>
   );
-};
-
-const getWaterQualityColor = (quality) => {
-  switch (quality) {
-    case 'Excellent':
-    case 'Good':
-      return 'text-green-500';
-    case 'Sufficient':
-      return 'text-yellow-500';
-    case 'Poor':
-      return 'text-red-500';
-    default:
-      return 'text-gray-500';
-  }
 };
 
 const getWaterQualityDescription = (quality) => {

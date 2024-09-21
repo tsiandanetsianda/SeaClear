@@ -1,8 +1,8 @@
 import axios from 'axios';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Search } from 'lucide-react';
-import React, { useCallback, useEffect, useState } from 'react';
+import { Menu, Search, X } from 'lucide-react';
+import { default as React, useCallback, useEffect, useState } from 'react';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import { Link, useNavigate } from 'react-router-dom';
 import './HomePage.css';
@@ -125,6 +125,8 @@ const beaches = [
 { name: "Witsands Beach", address: "Witsands, Scarborough", lat: -34.20120593463397, lng: 18.371606318368837 } ];
 
 const HomePage = () => {
+  const [menuOpen, setMenuOpen] = useState(false); // State to control menu visibility
+
   const navigate = useNavigate();
   const [searchInput, setSearchInput] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -171,20 +173,32 @@ const HomePage = () => {
     navigate('/education');
   }, [navigate]);
 
+  // Function to toggle menu visibility
+  const toggleMenu = () => {
+    setMenuOpen((prevState) => !prevState); // Toggle menu state
+
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-400 to-blue-600">
-      <header className="bg-blue-500 text-white">
-        <nav className="container mx-auto px-6 py-3">
-          <div className="flex justify-between items-center">
-            <Link to="/" className="text-white text-2xl font-bold">SeaClear</Link>
+    <div className="min-h-screen bg-gradient-to-b from-gray-400 to-blue-600">
+      <header className="bg-gray-600 text-white">
+        <nav className="container mx-auto px-6 py-3 flex justify-between items-center">
+          <Link to="/" className="text-white text-2xl font-bold">SeaClear</Link>
+
+          {/* Hamburger Icon for Mobile Menu */}
+          <div className="md:hidden">
+            <button onClick={toggleMenu} className="text-white focus:outline-none">
+              {menuOpen ? <X size={28} /> : <Menu size={28} />}
+            </button>
           </div>
-          <div className="flex justify-end space-x-4 mt-2">
+
+          {/* Menu Links for Desktop */}
+          <div className={`flex-col md:flex-row md:flex md:space-x-4 mt-2 md:mt-0 ${menuOpen ? 'flex' : 'hidden'}`}>
             <Link to="/education" className="text-white hover:text-blue-200">Learn More</Link>
             <Link to="/about" className="text-white hover:text-blue-200">About</Link>
             <Link to="/community" className="text-white hover:text-blue-200">Community</Link>
             <Link to="/login" className="bg-white text-blue-500 px-2 py-0 rounded-full hover:bg-blue-100 transition duration-300">Admin Login</Link>
             <Link to="/report" className="text-white hover:text-blue-200">Report an Issue</Link>
-
           </div>
         </nav>
       </header>
@@ -207,7 +221,7 @@ const HomePage = () => {
       onChange={handleSearchInput}
       className="w-full px-4 py-2 pr-10 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-600"
     />
-    <button className="absolute right-1 top-3 transform -translate-y-1/2 bg-blue-600 text-white p-1.5 rounded-full hover:bg-blue-700 transition duration-300 h-8 w-8 flex items-center justify-center">
+    <button className="absolute right-1 top-5 transform -translate-y-1/2 bg-blue-600 text-white p-1.5 rounded-full hover:bg-blue-700 transition duration-300 h-8 w-8 flex items-center justify-center">
       <Search size={16} />
     </button>
   </div>

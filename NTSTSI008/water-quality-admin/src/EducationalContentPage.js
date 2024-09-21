@@ -1,16 +1,11 @@
+import { Droplet, Leaf, Shield } from 'lucide-react';
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Droplet, Shield, Leaf } from 'lucide-react';
+import Header from './Header'; // Import the shared header
 
 const EducationalContentPage = () => {
   return (
     <div className="min-h-screen bg-gray-100">
-      <header className="bg-blue-600 text-white">
-        <div className="container mx-auto px-6 py-4">
-          <Link to="/" className="text-white hover:text-blue-200">← Back to Home</Link>
-          <h1 className="text-3xl font-bold mt-2">Learn About Beach Safety and Conservation</h1>
-        </div>
-      </header>
+      <Header /> {/* Use shared Header component */}
 
       <main className="container mx-auto px-6 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
