@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
-import { FileText, MessageSquare, Upload, Droplet, AlertTriangle, LogOut, CheckSquare, XSquare, Edit2 } from 'lucide-react';
+import { FileText, MessageSquare, Upload, Droplet, AlertTriangle, LogOut, CheckSquare, XSquare, Edit2, CheckCircle, Clock, Eye,Trash2 } from 'lucide-react';
 import axios from 'axios';
 import Select from 'react-select';
+
 
 
 const AdminDashboard = () => {
@@ -111,13 +112,29 @@ const Header = ({ user, onLogout }) => (
 
 const Dashboard = () => {
   return (
-    <div>
-      <h2 className="text-2xl font-semibold text-gray-900 mb-4">Dashboard Overview</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <DashboardCard title="Total Beaches" value="75" icon={Droplet} />
-        <DashboardCard title="Pending Comments" value="12" icon={MessageSquare} />
-        <DashboardCard title="Recent Reports" value="5" icon={AlertTriangle} />
-      </div>
+    <div className="bg-white shadow-md rounded-lg p-6">
+      <h2 className="text-2xl font-semibold text-gray-900 mb-4">Welcome to the Admin Dashboard</h2>
+      <p className="text-gray-600 mb-6">
+        This dashboard provides tools to manage and monitor the Water Quality Information System.
+        Here's what you can do:
+      </p>
+      <ul className="list-disc pl-6 space-y-2 text-gray-700">
+        <li>
+          <strong>Moderate Posts:</strong> Review and approve community posts to ensure quality content.
+        </li>
+        <li>
+          <strong>Upload Data:</strong> Update the system with the latest water quality information.
+        </li>
+        <li>
+          <strong>Manage Beaches:</strong> Update beach statuses and information as needed.
+        </li>
+        <li>
+          <strong>View Reports:</strong> Access and review community-submitted reports about beach conditions.
+        </li>
+      </ul>
+      <p className="mt-6 text-gray-600">
+        Use the sidebar navigation to access these features. If you need any assistance, please contact the system administrator Mr Tsianda Netsianda.
+      </p>
     </div>
   );
 };
@@ -379,56 +396,177 @@ const BeachesContent = () => {
 
 const ReportsContent = () => {
   const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedReport, setSelectedReport] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    // In a real application, you would fetch reports from your backend
-    // This is a placeholder using mock data
-    const mockReports = [
-      { id: 1, date: '2024-09-15', beach: 'Clifton Beach', type: 'Water Quality', status: 'Pending' },
-      { id: 2, date: '2024-09-14', beach: 'Muizenberg Beach', type: 'Litter', status: 'Resolved' },
-      { id: 3, date: '2024-09-13', beach: 'Camps Bay Beach', type: 'Facilities', status: 'In Progress' },
-    ];
-    setReports(mockReports);
+    fetchReports();
   }, []);
+
+  const fetchReports = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('http://localhost:5000/api/community/reports', { withCredentials: true });
+      setReports(response.data);
+      setError(null);
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+      setError('Failed to fetch reports. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleViewDetails = (report) => {
+    setSelectedReport(report);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedReport(null);
+  };
+
+  const handleViewAttachment = (attachmentPath) => {
+    const attachmentUrl = `http://localhost:5000/uploads/${attachmentPath.split('/').pop()}`;
+    window.open(attachmentUrl, '_blank');
+  };
+
+  if (loading) return <div>Loading reports...</div>;
+  if (error) return <div className="text-red-500">{error}</div>;
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold text-gray-900 mb-4">View Reports</h2>
+      <h2 className="text-2xl font-semibold text-gray-900 mb-4">Community Reports</h2>
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Beach</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action Required</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {reports.map((report) => (
-              <tr key={report.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{report.date}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{report.beach}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{report.type}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                    ${report.status === 'Resolved' ? 'bg-green-100 text-green-800' : 
-                      report.status === 'In Progress' ? 'bg-yellow-100 text-yellow-800' : 
-                      'bg-red-100 text-red-800'}`}>
-                    {report.status}
-                  </span>
-                </td>
+              <tr key={report._id}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(report.submitted_at).toLocaleDateString()}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{report.name}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{report.beach}</td>
+                <td className="px-6 py-4 text-sm text-gray-500">{report.description.substring(0, 50)}...</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{report.action}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{report.status || 'Pending'}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button className="text-indigo-600 hover:text-indigo-900">View Details</button>
+                  <button onClick={() => handleViewDetails(report)} className="text-indigo-600 hover:text-indigo-900">
+                    <Eye size={18} className="mr-1 inline-block" /> View Details
+                  </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {isModalOpen && selectedReport && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" onClick={handleCloseModal}>
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white" onClick={e => e.stopPropagation()}>
+            <div className="mt-3 text-center">
+              <h3 className="text-lg leading-6 font-medium text-gray-900">Report Details</h3>
+              <div className="mt-2 px-7 py-3">
+                <p className="text-sm text-gray-500"><strong>Name:</strong> {selectedReport.name}</p>
+                <p className="text-sm text-gray-500"><strong>Contact:</strong> {selectedReport.contact}</p>
+                <p className="text-sm text-gray-500"><strong>Beach:</strong> {selectedReport.beach}</p>
+                <p className="text-sm text-gray-500"><strong>Description:</strong> {selectedReport.description}</p>
+                <p className="text-sm text-gray-500"><strong>Action Required:</strong> {selectedReport.action}</p>
+                <p className="text-sm text-gray-500"><strong>Status:</strong> {selectedReport.status || 'Pending'}</p>
+                <p className="text-sm text-gray-500"><strong>Submitted At:</strong> {new Date(selectedReport.submitted_at).toLocaleString()}</p>
+                {selectedReport.file_path && (
+                  <p className="text-sm text-gray-500">
+                    <strong>Attachment:</strong> 
+                    <button onClick={() => handleViewAttachment(selectedReport.file_path)} className="text-indigo-600 hover:text-indigo-900 ml-2">
+                      View Attachment
+                    </button>
+                  </p>
+                )}
+              </div>
+              <div className="items-center px-4 py-3">
+                <button onClick={handleCloseModal} className="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
+const tableHeaderStyle = {
+  backgroundColor: '#f2f2f2',
+  padding: '12px',
+  textAlign: 'left',
+  borderBottom: '1px solid #ddd'
+};
+
+const tableRowStyle = {
+  borderBottom: '1px solid #ddd'
+};
+
+const tableCellStyle = {
+  padding: '12px'
+};
+
+const buttonStyle = {
+  backgroundColor: '#4CAF50',
+  border: 'none',
+  color: 'white',
+  padding: '8px 16px',
+  textAlign: 'center',
+  textDecoration: 'none',
+  display: 'inline-block',
+  fontSize: '14px',
+  margin: '4px 2px',
+  cursor: 'pointer',
+  borderRadius: '4px'
+};
+
+const modalOverlayStyle = {
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center'
+};
+
+const modalStyle = {
+  backgroundColor: 'white',
+  padding: '20px',
+  borderRadius: '5px',
+  maxWidth: '500px',
+  width: '100%'
+};
+
+
+const linkButtonStyle = {
+  background: 'none',
+  border: 'none',
+  color: '#0000EE',
+  textDecoration: 'underline',
+  cursor: 'pointer',
+  padding: 0,
+  font: 'inherit'
+};
+
 
 export default AdminDashboard;

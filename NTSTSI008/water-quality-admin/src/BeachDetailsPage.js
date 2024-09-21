@@ -18,13 +18,12 @@ function MapUpdater({ center }) {
 }
 
 const BeachDetailsPage = () => {
-  const { beachName } = useParams();
-  const location = useLocation();
-  const { coordinates } = location.state || { coordinates: [-34.1126, 18.4662] };
-  const [comment, setComment] = useState('');
-  const [communityPosts, setCommunityPosts] = useState([]);
+  const { beachName } = useParams(); // Get the beach name from the URL params
+  const location = useLocation(); // Get location state if available
+  const coordinates = location.state?.coordinates || [-34.1126, 18.4662]; // Set default coordinates if not provided
+  
   const [beachData, setBeachData] = useState({
-    name: beachName.replace(/-/g, ' '),
+    name: beachName?.replace(/-/g, ' ') || '',
     location: 'Cape Town, South Africa',
     waterQuality: 'Unknown',
     values: [],
@@ -35,24 +34,25 @@ const BeachDetailsPage = () => {
     coordinates: coordinates,
   });
   const [weather, setWeather] = useState(null);
+  const [comment, setComment] = useState(''); // State for comment input
+  const [communityPosts, setCommunityPosts] = useState([]); // State for community posts
   const mapRef = useRef(null);
 
-  const fetchBeachData = useCallback(async () => {
+  // Define the fetchBeachData function outside useEffect so it can be used later
+  const fetchBeachData = async () => {
     console.log('Fetching beach data for:', beachName);
     try {
       const response = await axios.get(`http://localhost:5000/api/beaches/${encodeURIComponent(beachName)}`);
-      console.log('Beach data received:', response.data);
-      setBeachData(prev => ({ 
-        ...prev, 
-        ...response.data, 
+      setBeachData((prev) => ({
+        ...prev,
+        ...response.data,
         coordinates,
-        waterQuality: response.data.is_safe,
+        waterQuality: response.data.is_safe || 'Unknown',
       }));
-      console.log('Beach data state updated');
     } catch (error) {
       console.error('Error fetching beach data:', error);
     }
-  }, [beachName, coordinates]);
+  };
 
   const fetchWeatherData = useCallback(async () => {
     console.log('Fetching weather data for coordinates:', coordinates);
@@ -101,7 +101,7 @@ const BeachDetailsPage = () => {
         content: comment,
       });
       console.log('Comment submitted successfully');
-      setComment('');
+      setComment(''); // Clear the comment input after successful submission
       alert('Your post has been submitted for moderation.');
       fetchCommunityPosts();
     } catch (error) {
@@ -162,7 +162,7 @@ const BeachDetailsPage = () => {
           </div>
           <div className="beach-details__info-item">
             <Droplet className="beach-details__info-icon" />
-            <span>Water Quality: {beachData.waterQuality}</span>
+            <span>Water Quality: {beachData.waterQuality || 'Unknown'}</span>
           </div>
           {weather && (
             <>

@@ -1,16 +1,24 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash, generate_password_hash
 from pymongo import MongoClient
 from bson import ObjectId
 from datetime import datetime
 import urllib.parse
 import re
+import os
+from flask import send_from_directory
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 app.config['SECRET_KEY'] = 'your-secret-key'  # Change this to a random secret key
+
+UPLOAD_FOLDER = 'uploads'
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -22,6 +30,7 @@ beach_collection = db['beach_data']
 community_posts_collection = db['community_posts']
 general_discussions_collection = db['general_discussions']  # New collection for storing general discussions
 user_collection = db['users']  # Collection for storing user data
+community_reports_collection = db['community_reports']  # Collection for community reports
 
 # User class for Flask-Login
 class User(UserMixin):
@@ -71,6 +80,12 @@ def convert_document_to_serializable(doc):
     else:
         return doc
 
+@app.route('/uploads/<path:filename>')
+def serve_uploaded_file(filename):
+    uploads_dir = os.path.join(app.root_path, 'uploads')
+    return send_from_directory(uploads_dir, filename)
+
+
 # Authentication routes
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -92,6 +107,12 @@ def login():
         }), 200
     print(f"Login failed for email: {email}")
     return jsonify({"message": "Invalid email or password", "status": "error"}), 401
+
+
+@app.route('/uploads/<path:filename>')
+def serve_file(filename):
+    return send_from_directory('uploads', filename)
+
 
 @app.route('/api/logout')
 @login_required
@@ -139,6 +160,61 @@ def get_beach_data(beach_name):
         return jsonify(beach_data)
     return jsonify({'error': 'Beach not found'}), 404
 
+
+@app.route('/api/community/report', methods=['POST'])
+def submit_community_report():
+    print("Received report submission")
+    data = request.json  # Change this to get JSON data instead of form data
+    
+    # Get fields from JSON data
+    name = data.get('name')
+    contact = data.get('contact')
+    beach = data.get('beach')
+    description = data.get('description')
+    action = data.get('action')
+
+    print(f"Name: {name}, Contact: {contact}, Beach: {beach}, Description: {description}, Action: {action}")
+
+    # Validate required fields
+    if not name or not contact or not beach or not description or not action:
+        return jsonify({"message": "All fields are required", "status": "error"}), 400
+
+    # Prepare report data
+    report = {
+        'name': name,
+        'contact': contact,
+        'beach': beach,
+        'description': description,
+        'action': action,
+        'submitted_at': datetime.now().isoformat(),
+        'status': 'Pending'
+    }
+
+    try:
+        # Insert report into MongoDB
+        community_reports_collection.insert_one(report)
+        return jsonify({"message": "Report submitted successfully", "status": "success"}), 201
+    except Exception as e:
+        print(f"Error submitting report: {e}")
+        return jsonify({"message": "Error submitting report", "status": "error"}), 500
+
+    try:
+        # Insert report into MongoDB
+        community_reports_collection.insert_one(report)
+        return jsonify({"message": "Report submitted successfully", "status": "success"}), 201
+    except Exception as e:
+        print(f"Error submitting report: {e}")
+        return jsonify({"message": "Error submitting report", "status": "error"}), 500
+
+@app.route('/api/community/reports', methods=['GET'])
+@login_required
+def get_community_reports():
+    try:
+        reports = list(community_reports_collection.find({}, {'_id': 0}))
+        return jsonify(reports), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # Community posts routes
 @app.route('/api/community/posts/<path:beach_name>', methods=['GET'])
 def get_community_posts(beach_name):
@@ -156,6 +232,39 @@ def get_community_posts(beach_name):
         return jsonify([]), 200
     except Exception as e:
         return jsonify({"error": "An error occurred while fetching community posts"}), 500
+    
+    
+@app.route('/api/community/reports/<report_id>/status', methods=['PUT'])
+@login_required
+def update_report_status(report_id):
+    data = request.json
+    new_status = data.get('status')
+    if not new_status:
+        return jsonify({'error': 'Status is required'}), 400
+
+    try:
+        result = community_reports_collection.update_one(
+            {'_id': ObjectId(report_id)},
+            {'$set': {'status': new_status}}
+        )
+        if result.modified_count == 0:
+            return jsonify({'error': 'Report not found or status not updated'}), 404
+        return jsonify({'message': 'Report status updated successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+    
+@app.route('/api/community/reports/<report_id>', methods=['DELETE'])
+@login_required
+def remove_report(report_id):
+    try:
+        result = community_reports_collection.delete_one({'_id': ObjectId(report_id)})
+        if result.deleted_count == 0:
+            return jsonify({'error': 'Report not found'}), 404
+        return jsonify({'message': 'Report removed successfully'}), 200
+    except Exception as e:
+        print(f"Error removing report: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/community/posts/pending', methods=['GET'])
 @login_required

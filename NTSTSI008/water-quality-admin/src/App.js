@@ -7,6 +7,9 @@ import EducationalContentPage from './EducationalContentPage';
 import HomePage from './HomePage';
 import LoginPage from './LoginPage';
 import AboutPage from './AboutPage';
+import CommunityReport from './CommunityReport'; // Ensure casing is consistent
+
+
 
 function App() {
   return (
@@ -19,6 +22,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/admin/*" element={<AdminDashboard />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/report" element={<CommunityReport />} />
       </Routes>
     </Router>
   );

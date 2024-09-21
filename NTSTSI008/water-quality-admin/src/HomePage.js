@@ -134,16 +134,17 @@ const HomePage = () => {
   useEffect(() => {
     fetchBeachData();
   }, []);
-
+  
   const fetchBeachData = useCallback(async () => {
     try {
       const response = await axios.get('http://localhost:5000/api/beaches');
       console.log('Fetched beach data:', response.data);
-      setBeachData(response.data);
+      setBeachData(response.data);  // This now includes all beaches
     } catch (error) {
       console.error('Error fetching beach data:', error);
     }
   }, []);
+  
 
   const handleBeachSelection = useCallback((beach) => {
     const beachNameForUrl = beach.name.toLowerCase().replace(/\s+/g, '-');
@@ -182,6 +183,8 @@ const HomePage = () => {
             <Link to="/about" className="text-white hover:text-blue-200">About</Link>
             <Link to="/community" className="text-white hover:text-blue-200">Community</Link>
             <Link to="/login" className="bg-white text-blue-500 px-2 py-0 rounded-full hover:bg-blue-100 transition duration-300">Admin Login</Link>
+            <Link to="/report" className="text-white hover:text-blue-200">Report an Issue</Link>
+
           </div>
         </nav>
       </header>
