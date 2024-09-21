@@ -1,4 +1,6 @@
-
+# CS gitlab link
+ https://gitlab.cs.uct.ac.za/team169/SeaClear
+ 
 # SeaClear Website - README
 
 ## Introduction
