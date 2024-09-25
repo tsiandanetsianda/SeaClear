@@ -1,1 +1,0 @@
-export { BeachDetails } from "./BeachDetails";
