@@ -1,0 +1,247 @@
+.navbar {
+  background-color: var(--semantic-background-color-primary);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.navbar .container {
+  align-items: center;
+  align-self: stretch;
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: space-between;
+  margin-top: -1.5px;
+  position: relative;
+  width: 100%;
+}
+
+.navbar .content {
+  align-items: flex-start;
+  display: inline-flex;
+  flex: 0 0 auto;
+  position: relative;
+}
+
+.navbar .company-logo-instance {
+  height: 72px !important;
+  left: unset !important;
+  position: relative !important;
+  top: unset !important;
+}
+
+.navbar .column {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 32px;
+  justify-content: center;
+  position: relative;
+}
+
+.navbar .column-2 {
+  align-items: flex-start;
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 32px;
+  position: relative;
+}
+
+.navbar .text-wrapper-2 {
+  color: var(--semantic-link-primary);
+  font-family: var(--text-regular-normal-font-family);
+  font-size: var(--text-regular-normal-font-size);
+  font-style: var(--text-regular-normal-font-style);
+  font-weight: var(--text-regular-normal-font-weight);
+  letter-spacing: var(--text-regular-normal-letter-spacing);
+  line-height: var(--text-regular-normal-line-height);
+  margin-top: -1px;
+  position: relative;
+  white-space: nowrap;
+  width: fit-content;
+}
+
+.navbar .nav-link-dropdown {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 4px;
+  justify-content: center;
+  position: relative;
+}
+
+.navbar .chevron-down {
+  height: 24px;
+  position: relative;
+  width: 24px;
+}
+
+.navbar .actions {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 16px;
+  justify-content: center;
+  position: relative;
+}
+
+.navbar .button-instance {
+  flex: 0 0 auto !important;
+  margin-bottom: -1px !important;
+  margin-left: -1px !important;
+  margin-top: -1px !important;
+}
+
+.navbar .container-2 {
+  align-items: center;
+  align-self: stretch;
+  display: flex;
+  height: 64px;
+  justify-content: space-between;
+  padding: 0px 12px 0px 20px;
+  position: relative;
+  width: 100%;
+}
+
+.navbar .company-logo-wrapper {
+  align-items: flex-start;
+  display: inline-flex;
+  flex: 0 0 auto;
+  margin-bottom: -5.5px;
+  margin-top: -5.5px;
+  position: relative;
+}
+
+.navbar .instance-node {
+  height: 69.5px !important;
+  left: unset !important;
+  position: relative !important;
+  top: unset !important;
+}
+
+.navbar .icon {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  height: 48px;
+  justify-content: center;
+  position: relative;
+  width: 48px;
+}
+
+.navbar .row {
+  align-items: flex-start;
+  align-self: stretch;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  flex-grow: 1;
+  gap: 10px;
+  padding: 16px 20px 160px;
+  position: relative;
+  width: 100%;
+}
+
+.navbar .column-3 {
+  align-items: center;
+  align-self: stretch;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 24px;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+}
+
+.navbar .column-4 {
+  align-items: flex-start;
+  align-self: stretch;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+}
+
+.navbar .div-wrapper {
+  align-items: flex-start;
+  align-self: stretch;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 8px;
+  padding: 12px 0px;
+  position: relative;
+  width: 100%;
+}
+
+.navbar .text-wrapper-3 {
+  color: var(--semantic-link-primary);
+  flex: 1;
+  font-family: var(--text-medium-normal-font-family);
+  font-size: var(--text-medium-normal-font-size);
+  font-style: var(--text-medium-normal-font-style);
+  font-weight: var(--text-medium-normal-font-weight);
+  letter-spacing: var(--text-medium-normal-letter-spacing);
+  line-height: var(--text-medium-normal-line-height);
+  margin-top: -1px;
+  position: relative;
+}
+
+.navbar .nav-link-dropdown-2 {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  flex-grow: 1;
+  gap: 4px;
+  position: relative;
+}
+
+.navbar .actions-2 {
+  align-items: flex-start;
+  align-self: stretch;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  width: 100%;
+}
+
+.navbar .button-2 {
+  align-self: stretch !important;
+  display: flex !important;
+  flex: 0 0 auto !important;
+  margin-left: -1px !important;
+  margin-right: -1px !important;
+  margin-top: -1px !important;
+  width: 100% !important;
+}
+
+.navbar .button-3 {
+  align-self: stretch !important;
+  display: flex !important;
+  flex: 0 0 auto !important;
+  margin-bottom: -1px !important;
+  margin-left: -1px !important;
+  margin-right: -1px !important;
+  width: 100% !important;
+}
+
+.navbar.mobile {
+  align-items: flex-start;
+  height: 812px;
+  width: 375px;
+}
+
+.navbar.desktop {
+  align-items: center;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-color: var(--semantic-border-primary);
+  height: 72px;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0px 64px;
+  width: 1440px;
+}

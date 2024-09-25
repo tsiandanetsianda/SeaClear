@@ -40,7 +40,7 @@ const AboutPage = () => {
             <TeamMember
               name="Alex Mabuza"
               role="Project Lead & Full Stack Developer"
-              description="Sachen is the driving force behind SeaClear, bringing years of experience in software development and project management to the team."
+              description="Alex is the driving force behind SeaClear, bringing years of experience in software development and project management to the team."
             />
             <TeamMember
               name="Tsianda Netsianda"
@@ -50,7 +50,7 @@ const AboutPage = () => {
             <TeamMember
               name="Sachen Pather"
               role="Frontend Developer & UI/UX Designer"
-              description="Alex is responsible for the intuitive design and user experience of SeaClear, making sure the platform is both accessible and visually appealing."
+              description="Sachen is responsible for the intuitive design and user experience of SeaClear, making sure the platform is both accessible and visually appealing."
             />
           </div>
 

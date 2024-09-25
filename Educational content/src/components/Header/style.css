@@ -1,0 +1,94 @@
+.header {
+  align-items: flex-start;
+  background-color: #00000080;
+  background-position: 50% 50%;
+  background-size: cover;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.header .content-2 {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.header .short-heading-here {
+  align-self: stretch;
+  color: var(--semantic-text-alternate);
+  margin-top: -1px;
+  position: relative;
+}
+
+.header .lorem-ipsum-dolor {
+  align-self: stretch;
+  color: var(--semantic-text-alternate);
+  position: relative;
+}
+
+.header.breakpoint-mobile {
+  background-image: url(../../../static/img/breakpoint-mobile-1.png);
+  gap: 48px;
+  padding: 64px 20px;
+  width: 375px;
+}
+
+.header.breakpoint-desktop {
+  background-image: url(../../../static/img/breakpoint-desktop-1.png);
+  gap: 80px;
+  height: 369px;
+  padding: 112px 64px;
+  width: 1440px;
+}
+
+.header.breakpoint-mobile .content-2 {
+  align-self: stretch;
+  flex: 0 0 auto;
+  gap: 20px;
+  width: 100%;
+}
+
+.header.breakpoint-desktop .content-2 {
+  flex: 1;
+  flex-grow: 1;
+  gap: 24px;
+  width: 768px;
+}
+
+.header.breakpoint-mobile .short-heading-here {
+  font-family: var(--heading-mobile-h1-font-family);
+  font-size: var(--heading-mobile-h1-font-size);
+  font-style: var(--heading-mobile-h1-font-style);
+  font-weight: var(--heading-mobile-h1-font-weight);
+  letter-spacing: var(--heading-mobile-h1-letter-spacing);
+  line-height: var(--heading-mobile-h1-line-height);
+}
+
+.header.breakpoint-desktop .short-heading-here {
+  font-family: var(--heading-desktop-h1-font-family);
+  font-size: var(--heading-desktop-h1-font-size);
+  font-style: var(--heading-desktop-h1-font-style);
+  font-weight: var(--heading-desktop-h1-font-weight);
+  letter-spacing: var(--heading-desktop-h1-letter-spacing);
+  line-height: var(--heading-desktop-h1-line-height);
+}
+
+.header.breakpoint-mobile .lorem-ipsum-dolor {
+  font-family: var(--text-regular-normal-font-family);
+  font-size: var(--text-regular-normal-font-size);
+  font-style: var(--text-regular-normal-font-style);
+  font-weight: var(--text-regular-normal-font-weight);
+  letter-spacing: var(--text-regular-normal-letter-spacing);
+  line-height: var(--text-regular-normal-line-height);
+}
+
+.header.breakpoint-desktop .lorem-ipsum-dolor {
+  font-family: var(--text-medium-normal-font-family);
+  font-size: var(--text-medium-normal-font-size);
+  font-style: var(--text-medium-normal-font-style);
+  font-weight: var(--text-medium-normal-font-weight);
+  letter-spacing: var(--text-medium-normal-letter-spacing);
+  line-height: var(--text-medium-normal-line-height);
+}

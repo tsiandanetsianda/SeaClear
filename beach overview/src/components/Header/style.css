@@ -1,0 +1,80 @@
+.header {
+  align-items: flex-start;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.header .content-2 {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.header .short-heading-here {
+  align-self: stretch;
+  color: #000000;
+  font-family: "Roboto", Helvetica;
+  font-weight: 700;
+  letter-spacing: 0;
+  margin-top: -1px;
+  position: relative;
+}
+
+.header .lorem-ipsum-dolor {
+  align-self: stretch;
+  color: #000000;
+  font-family: "Roboto", Helvetica;
+  font-weight: 400;
+  letter-spacing: 0;
+  position: relative;
+}
+
+.header.breakpoint-mobile {
+  gap: 48px;
+  padding: 64px 20px;
+  width: 375px;
+}
+
+.header.breakpoint-desktop {
+  gap: 80px;
+  height: 369px;
+  padding: 112px 64px;
+  width: 1440px;
+}
+
+.header.breakpoint-mobile .content-2 {
+  align-self: stretch;
+  flex: 0 0 auto;
+  gap: 20px;
+  width: 100%;
+}
+
+.header.breakpoint-desktop .content-2 {
+  flex: 1;
+  flex-grow: 1;
+  gap: 24px;
+  width: 768px;
+}
+
+.header.breakpoint-mobile .short-heading-here {
+  font-size: 40px;
+  line-height: 48px;
+}
+
+.header.breakpoint-desktop .short-heading-here {
+  font-size: 56px;
+  line-height: 67.2px;
+}
+
+.header.breakpoint-mobile .lorem-ipsum-dolor {
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.header.breakpoint-desktop .lorem-ipsum-dolor {
+  font-size: 18px;
+  line-height: 27px;
+}

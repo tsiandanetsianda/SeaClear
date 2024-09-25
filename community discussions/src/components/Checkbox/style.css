@@ -1,0 +1,37 @@
+.checkbox {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+  position: relative;
+}
+
+.checkbox .div-2 {
+  background-color: var(--primitive-color-neutral-white);
+  border: 1px solid;
+  border-color: var(--semantic-border-primary);
+  height: 20px;
+  margin-left: -1px;
+  position: relative;
+  width: 20px;
+}
+
+.checkbox .img-2 {
+  height: 20px;
+  margin-left: -1px;
+  position: relative;
+  width: 20px;
+}
+
+.checkbox .label {
+  color: var(--semantic-text-primary);
+  font-family: var(--text-regular-normal-font-family);
+  font-size: var(--text-regular-normal-font-size);
+  font-style: var(--text-regular-normal-font-style);
+  font-weight: var(--text-regular-normal-font-weight);
+  letter-spacing: var(--text-regular-normal-letter-spacing);
+  line-height: var(--text-regular-normal-line-height);
+  margin-top: -1px;
+  position: relative;
+  white-space: nowrap;
+  width: fit-content;
+}

@@ -1,0 +1,133 @@
+.CTA {
+  align-items: flex-start;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.CTA .container-4 {
+  align-items: flex-start;
+  align-self: stretch;
+  display: flex;
+  flex: 0 0 auto;
+  position: relative;
+  width: 100%;
+}
+
+.CTA .heading-wrapper {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.CTA .heading-5 {
+  align-self: stretch;
+  color: #000000;
+  font-family: "Roboto", Helvetica;
+  font-weight: 700;
+  letter-spacing: 0;
+  margin-top: -1px;
+  position: relative;
+}
+
+.CTA .column-6 {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.CTA .text-6 {
+  align-self: stretch;
+  color: #000000;
+  font-family: "Roboto", Helvetica;
+  font-weight: 400;
+  letter-spacing: 0;
+  margin-top: -1px;
+  position: relative;
+}
+
+.CTA .actions-4 {
+  align-items: flex-start;
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 16px;
+  padding: 16px 0px 0px;
+  position: relative;
+}
+
+.CTA .button-6 {
+  flex: 0 0 auto !important;
+  margin-bottom: -1px !important;
+  margin-right: -1px !important;
+  margin-top: -1px !important;
+}
+
+.CTA.breakpoint-33-mobile {
+  gap: 48px;
+  padding: 64px 20px;
+  width: 375px;
+}
+
+.CTA.breakpoint-33-desktop {
+  gap: 80px;
+  padding: 112px 64px;
+  width: 1440px;
+}
+
+.CTA.breakpoint-33-mobile .container-4 {
+  flex-direction: column;
+  gap: 20px;
+}
+
+.CTA.breakpoint-33-desktop .container-4 {
+  gap: 80px;
+}
+
+.CTA.breakpoint-33-mobile .heading-wrapper {
+  align-self: stretch;
+  flex: 0 0 auto;
+  gap: 12px;
+  width: 100%;
+}
+
+.CTA.breakpoint-33-desktop .heading-wrapper {
+  flex: 1;
+  flex-grow: 1;
+  gap: 24px;
+}
+
+.CTA.breakpoint-33-mobile .heading-5 {
+  font-size: 36px;
+  line-height: 43.2px;
+}
+
+.CTA.breakpoint-33-desktop .heading-5 {
+  font-size: 48px;
+  line-height: 57.6px;
+}
+
+.CTA.breakpoint-33-mobile .column-6 {
+  align-self: stretch;
+  flex: 0 0 auto;
+  gap: 8px;
+  width: 100%;
+}
+
+.CTA.breakpoint-33-desktop .column-6 {
+  flex: 1;
+  flex-grow: 1;
+  gap: 24px;
+}
+
+.CTA.breakpoint-33-mobile .text-6 {
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.CTA.breakpoint-33-desktop .text-6 {
+  font-size: 18px;
+  line-height: 27px;
+}
